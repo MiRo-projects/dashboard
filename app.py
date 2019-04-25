@@ -216,6 +216,21 @@ dashboard_graphs = {
 	)
 }
 
+# FIXME: Get a large modal popup for cameras working
+# dashboard_modals = html.Div([
+# 	dbc.Modal(
+# 		[
+# 			dbc.ModalHeader('Big cam'),
+# 			dbc.ModalBody("This is the content of the modal"),
+# 			dbc.ModalFooter(
+# 				dbc.Button("Close", id="spatial-modal-close", className="ml-auto")
+# 			),
+#
+# 		],
+# 		id='spatial-modal'
+# 	)
+# ])
+
 # As arrows comprise multiple lines spread across multiple rows and columns,
 # and each tooltip requires a unique ID, tooltip messages must be repeated to occur along the entire arrow
 # Instead, tooltips currently only appear for arrow terminators
@@ -602,7 +617,18 @@ dashboard_rows = {
 			dbc.Col(
 				dbc.Card(
 					[
-						dbc.CardHeader('Spatial attention'),
+						dbc.CardHeader(
+							[
+								'Spatial attention',
+								# dbc.Button(
+								# 	'+',
+								# 	id='spatial-modal-open',
+								# 	color='info',
+								# 	size='sm',
+								# 	style={'float': 'right'}
+								# )
+							]
+						),
 						dbc.CardBody(
 							[
 								dashboard_graphs['aural'],
@@ -894,6 +920,7 @@ app.layout = html.Div(
 		dashboard_rows['Row_6'],
 		dashboard_rows['Row_7'],
 		dashboard_rows['Row_btm'],
+		# dashboard_modals,
 		dashboard_tooltips,
 		dcc.Interval(
 			id='interval-fast',
@@ -930,6 +957,19 @@ def alert_face(n):
 		return True
 	else:
 		return False
+
+
+# @app.callback(
+# 	Output('spatial-modal', 'is_open'),
+# 	[Input('spatial-modal-open', 'n_clicks'), Input('spatial-modal-close', 'n_clicks')]
+# )
+# def modal_spatial(n1, n2, is_open):
+# 	if n1 or n2:
+# 		print ('hello')
+# 		return not is_open
+#
+# 	print ('hello again')
+# 	return is_open
 
 
 @app.callback(Output('action-graph', 'figure'), [Input('interval-fast', 'n_intervals')])
