@@ -119,7 +119,7 @@ class MiroClient:
 		# Get monochrome image
 		pri = Im.frombytes('L', (182, 100), np.fromstring(frame.data, np.uint8), 'raw')
 
-		# TODO: Convert to image type with full alpha channel, make background transparent
+		# TODO: Convert to image type with full alpha channel and make background transparent
 		# Invert image for overlaying
 		return ImageOps.invert(pri)
 
