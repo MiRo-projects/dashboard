@@ -16,42 +16,46 @@ import numpy as np
 import miro_ros_interface as mri
 
 ##########
-# Define line and arrow widths
-H_WIDTH = 7
-V_WIDTH = H_WIDTH - 2
-V_HEIGHT = 30
+# Define line and arrow dimensions
 A_HEIGHT = 20
 A_WIDTH = A_HEIGHT / 2
+A_VERT_OFFSET = -13
+H_WIDTH = 9
+L_BORDER = 2
+L_COLOUR = '#7b8a8b'    # Matches 'dark' colour from Flatly theme
+L_VERT_OFFSET = 25
+V_WIDTH = H_WIDTH - (L_BORDER * 2)
+V_HEIGHT = 30
 
 ##########
-# Define custom CSS
+# Define custom CSS for lines and arrows
 css = {
 	'arrow_down': {
 		'border-left' : str(A_WIDTH) + 'px solid white',
 		'border-right': str(A_WIDTH) + 'px solid white',
-		'border-top'  : str(A_HEIGHT) + 'px solid black',
+		'border-top'  : str(A_HEIGHT) + 'px solid ' + L_COLOUR,
 		'height'      : 0,
 		'margin'      : 'auto',
 		'position'    : 'relative',
-		'bottom'      : '20px',
+		'bottom'      : str(A_HEIGHT) + 'px',
 		'width'       : 0
 	},
 	'arrow_left': {
 		'border-bottom': str(A_WIDTH) + 'px solid white',
-		'border-right' : str(A_HEIGHT) + 'px solid black',
+		'border-right' : str(A_HEIGHT) + 'px solid ' + L_COLOUR,
 		'border-top'   : str(A_WIDTH) + 'px solid white',
 		'float'        : 'left',
 		'height'       : 0,
-		'margin-top'   : '-13px',
+		'margin-top'   : str(A_VERT_OFFSET) + 'px',
 		'width'        : 0
 	},
 	'arrow_right': {
 		'border-bottom': str(A_WIDTH) + 'px solid white',
-		'border-left'  : str(A_HEIGHT) + 'px solid black',
+		'border-left'  : str(A_HEIGHT) + 'px solid ' + L_COLOUR,
 		'border-top'   : str(A_WIDTH) + 'px solid white',
 		'float'        : 'right',
 		'height'       : 0,
-		'margin-top'   : '-13px',
+		'margin-top'   : str(A_VERT_OFFSET) + 'px',
 		'width'        : 0
 	},
 	'arrow_right_clear': {
@@ -60,56 +64,45 @@ css = {
 		'border-top'   : str(A_WIDTH) + 'px solid transparent',
 		'float'        : 'right',
 		'height'       : 0,
-		'margin-top'   : '-13px',
+		'margin-top'   : str(A_VERT_OFFSET) + 'px',
 		'width'        : 0
 	},
 	'arrow_up': {
-		'border-bottom': str(A_HEIGHT) + 'px solid black',
+		'border-bottom': str(A_HEIGHT) + 'px solid ' + L_COLOUR,
 		'border-left'  : str(A_WIDTH) + 'px solid white',
 		'border-right' : str(A_WIDTH) + 'px solid white',
 		'height'       : 0,
 		'margin'       : 'auto',
 		'width'        : 0
 	},
-	'bar': {
-		'border'    : '0px',
-		'margin'    : '0px',
-		'padding'   : '5px',
-		'text-align': 'center'
-	},
-	'card-title': {
-		'font-size'     : 'larger',
-		'font-weight'   : 'bold',
-		'vertical-align': 'middle',
-	},
 	'line_horizontal': {
-		'background-color': 'black',
-		'border-bottom'   : '1px white solid',
-		'border-top'      : '1px white solid',
+		'background-color': L_COLOUR,
+		'border-bottom'   : str(L_BORDER) + 'px white solid',
+		'border-top'      : str(L_BORDER) + 'px white solid',
 		'float'           : 'right',
 		'height'          : str(H_WIDTH) + 'px',
 		'width'           : '100%',
-		'margin-top'      : '25px',
+		'margin-top'      : str(L_VERT_OFFSET) + 'px',
 	},
 	'line_horizontal_clear': {
-		'border-bottom'   : '1px white transparent',
-		'border-top'      : '1px white transparent',
+		'border-bottom'   : str(L_BORDER) + 'px white transparent',
+		'border-top'      : str(L_BORDER) + 'px white transparent',
 		'float'           : 'right',
 		'height'          : str(H_WIDTH) + 'px',
 		'width'           : '100%',
-		'margin-top'      : '25px',
+		'margin-top'      : str(L_VERT_OFFSET) + 'px',
 	},
 	'line_horizontal_clear_left': {
 		'background-color': 'white',
-		'border-right'    : '5px black solid',
-		'height'          : str(H_WIDTH - 1) + 'px',
+		'border-right'    : str(V_WIDTH) + 'px ' + L_COLOUR + ' solid',
+		'height'          : str(H_WIDTH - L_BORDER) + 'px',
 		'width'           : '52%',
 		'position'        : 'absolute',
 		'right'           : '48%',
-		'top'             : '25px'
+		'top'             : str(L_VERT_OFFSET) + 'px'
 	},
 	'line_vertical': {
-		'background-color': 'black',
+		'background-color': L_COLOUR,
 		'height'          : '100%',
 		'width'           : str(V_WIDTH) + 'px',
 		'margin'          : 'auto',
@@ -166,45 +159,45 @@ dashboard_alerts = {
 		"⚽",
 		id='ball-alert',
 		color='info',
+		className='m-0 large text-center',
 		is_open=False,
-		style={
-			'font-size' : 'x-large',
-			'margin'    : '0px',
-			'text-align': 'center'
-		}
 	),
 	'ball_large': dbc.Alert(
 		"⚽",
 		id='ball-alert-large',
 		color='info',
+		className='m-0 large text-center',
 		is_open=False,
-		style={
-			'font-size' : 'x-large',
-			'margin'    : '0px',
-			'text-align': 'center'
-		}
 	),
 	'face': dbc.Alert(
 		"😀",
 		id='face-alert',
 		color='success',
+		className='m-0 large text-center',
 		is_open=False,
-		style={
-			'font-size' : 'x-large',
-			'margin'    : '0px',
-			'text-align': 'center'
-		}
 	),
 	'face_large': dbc.Alert(
 		"😀",
 		id='face-alert-large',
 		color='success',
+		className='m-0 large text-center',
 		is_open=False,
-		style={
-			'font-size' : 'x-large',
-			'margin'    : '0px',
-			'text-align': 'center'
-		}
+	),
+	'intro': dbc.Alert(
+		[
+			html.H4('MiRo Dashboard', className='alert-heading'),
+			html.P('This visual representation of MiRo\'s \"cognitive architecture\" reveals some of the '
+			       'data and processes driving the robot\'s behaviour.'),
+			html.P('Note component connections, observe what happens to each plot as you interact with '
+			       'MiRo, and click any of the \'＋\' buttons for more information.')
+		],
+		className='mx-5 shadow-lg',
+		color='primary',
+	),
+	'connections': dbc.Alert(
+		'Many up– and downstream connections are omitted for clarity',
+		className='mx-5 shadow small',
+		color='light',
 	),
 }
 
@@ -227,7 +220,7 @@ dashboard_graphs = {
 	),
 	'affect': dcc.Graph(
 		id='affect-graph',
-		# 'Animate' property is incompatible with changing images
+		# 'Animate' property is incompatible with changing background images
 		# animate=True,
 		config={'displayModeBar': False},
 		style={
@@ -290,18 +283,18 @@ dashboard_graphs = {
 dashboard_intervals = html.Div([
 	dcc.Interval(
 		id='interval-fast',
-		# Too fast an interval causes issues as not all plots can be updated before the next callback
-		interval=0.5 * 1000,
+		# Too short an interval causes issues as not all plots can be updated before the next callback
+		interval=0.5 * 1000,    # Every half-second
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		interval=1 * 1000,
+		interval=1 * 1000,      # Every second
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-slow',
-		interval=60 * 1000,
+		interval=60 * 1000,     # Every minute
 		n_intervals=0
 	)
 ])
@@ -309,9 +302,11 @@ dashboard_intervals = html.Div([
 dashboard_tools = {
 	# TODO: Add a callback so the status of both toggles is synchronised
 	'cam_toggle': daq.BooleanSwitch(
+		color='#18BC9C',        # Matches the Flatly theme 'success' colour used in the attention header
 		id='cam-toggle',
 		label='Visual attention',
 		labelPosition='bottom',
+		style={'color': 'black'}
 	),
 	'cam_toggle_large': daq.BooleanSwitch(
 		id='cam-toggle-large',
@@ -319,45 +314,46 @@ dashboard_tools = {
 		labelPosition='bottom',
 	),
 	'action_button': dbc.Button(
-		'…',
+		'＋',
 		id='action-modal-open',
-		color='dark',
+		color='light',
 		size='sm',
 		style={'float': 'right'}
 	),
 	'affect_button': dbc.Button(
-		'…',
+		'＋',
 		id='affect-modal-open',
-		color='dark',
+		color='light',
 		size='sm',
 		style={'float': 'right'}
 	),
 	'circadian_button': dbc.Button(
-		'…',
+		'＋',
 		id='circadian-modal-open',
 		color='light',
 		size='sm',
 		style={'float': 'right'}
 	),
 	'spatial_button': dbc.Button(
-		'…',
+		'＋',
 		id='spatial-modal-open',
-		color='dark',
+		color='light',
 		size='sm',
 		style={'float': 'right'}
 	),
 }
 
 dashboard_tabs = {
-	# TODO: Finish adding information to all dynamic tabs
-	'action_graph' : dbc.Tab([dashboard_graphs['action_large']], label='Live data'),
+	'action_graph' : dbc.Tab(dashboard_graphs['action_large'], label='Live data'),
 	'action_info': dbc.Tab(
 		[
-			dbc.Alert('Action selection is a fundamental process for all animal life. To successfully navigate the '
-			          'world and complete goals such as finding food or evading predators, animals must choose at '
-			          'every moment which action to perform from countless possibilities.',
-			          color='info'),
-
+			dbc.Alert(
+				'Action selection is a fundamental process for all animal life. To successfully navigate the world '
+				'and complete goals such as finding food or evading predators, animals must choose at every moment '
+				'which action to perform from countless possibilities.',
+				color='info',
+				className='mt-2'
+			),
 			dbc.CardDeck([
 				dbc.Card(
 					[
@@ -366,23 +362,24 @@ dashboard_tabs = {
 							dcc.Markdown(
 								'A collection of brain structures called the **basal ganglia** are commonly thought to '
 								'be responsible for action selection in mammals. The basal ganglia continually inhibit '
-								'motor centres to prevent unwanted movements, and selectively disinhibit the regions '
-								'corresponding to actions the animal has decided to perform.'
+								'motor centres to prevent unwanted movements, and inputs from many brain areas '
+								'corresponding to \'requests\' to perform various actions co-operate and compete to '
+								'determine which motor regions are disinhibited to allow an action to be selected.'
 							),
 							dcc.Markdown(
-								'The basal ganglia are also responsible for many related functions, such as combining '
+								'The basal ganglia are also responsible for many related functions, such as linking '
 								'several actions together into a learned sequence (e.g. pressing the brakes in a car) '
 								'and forming habitual responses to specific stimuli (e.g. switching on the lights when '
 								'entering a dark room).'
 							)
 						]),
-						dbc.CardFooter([
+						dbc.CardFooter(
 							html.A(
-								dbc.Button('More information', color='success', className='mr-1'),
+								dbc.Button('More information', color='success'),
 								href='http://www.scholarpedia.org/article/Basal_ganglia',
 								target='_blank'
 							)
-						])
+						)
 					],
 					className='shadow-sm'
 				),
@@ -393,12 +390,13 @@ dashboard_tabs = {
 							dcc.Markdown(
 								'Unlike a real animal which can perform any action its body will physically allow, '
 								'MiRo can only choose from a set of seven possible actions, the parameters of which '
-								'are largely predefined.'
+								'are largely predefined. MiRo is unable to learn new actions, form sequences of '
+								'actions, or associate actions with positive or negative outcomes.'
 							),
 							dcc.Markdown(
-								'MiRo is unable to learn new actions, form sequences of actions, or associate actions '
-								'with their outcomes. Additionally, the process by which actions are selected is '
-								'greatly simplified in MiRo compared to living mammals.'
+								'MiRo cannot set long-term goals or anticipate future situations and thus selects '
+								'actions purely as a reaction to the current situation. The process by which actions '
+								'are selected is also greatly simplified compared to living mammals.'
 							)
 						])
 					],
@@ -409,23 +407,25 @@ dashboard_tabs = {
 		label='Information'
 	),
 	'affect_graph': dbc.Tab(
-		[
-			dbc.Table(
-				[
-					html.Tr([
-						html.Td(dashboard_graphs['affect_large']),
-						html.Td(dashboard_graphs['sleep_large'])
-					])
-				],
-				borderless=True
-			)
-		],
+		dbc.Table(
+			html.Tr([
+				html.Td(dashboard_graphs['affect_large']),
+				html.Td(dashboard_graphs['sleep_large'])
+			]),
+			borderless=True
+		),
 		label='Live data'
 	),
 	'affect_info' : dbc.Tab(
 		[
-			dbc.Alert('Affect is ...',
-			          color='info'),
+			dbc.Alert(
+				'Emotions arise from complex neurological, biological, and physiological interactions, though the '
+				'neural changes and the conscious perception of those changes should be considered as separate '
+				'phenomena. Affective responses provide rapid and vital information on how best to deal with '
+				'environmental stimuli.',
+				color='info',
+				className='mt-2'
+			),
 			dbc.CardDeck([
 				dbc.Card(
 					[
@@ -439,17 +439,17 @@ dashboard_tabs = {
 							dcc.Markdown(
 								'Emotional responses guide attention, drive learning, and influence behaviour and are '
 								'therefore enormously important to an animal\'s well-being and success. For example, '
-								'fear of predators preserves safety through fleeing, disgust preserves health through '
-								'avoidance of poor food, and anger promotes social dominance through fighting.'
+								'fear of predators preserves safety by inducing fleeing, and disgust preserves health '
+								'by inducing the avoidance of poor food.'
 							)
 						]),
-						dbc.CardFooter([
+						dbc.CardFooter(
 							html.A(
-								dbc.Button('More information', color='success', className='mr-1'),
+								dbc.Button('More information', color='success'),
 								href='http://www.scholarpedia.org/article/Emotion',
 								target='_blank'
 							)
-						])
+						)
 					],
 					className='shadow-sm'
 				),
@@ -468,7 +468,7 @@ dashboard_tabs = {
 								'MiRo\'s emotions are driven entirely by his current situation rather than memories of '
 								'previous encounters or expectations of the future, and there is no scope for '
 								'representing emotions that do not fit on a strictly good/bad continuum such as anger, '
-								'confusion, curiosity, or digust.'
+								'confusion, curiosity, or disgust.'
 							)
 						])
 					],
@@ -480,28 +480,46 @@ dashboard_tabs = {
 	),
 	'circadian_info': dbc.Tab(
 		[
+			# TODO: Circadian information
 			dbc.Alert(
-				'Circadian rhythm',
-				color='info'),
+				'Circadian rhythms regulate many important biological processes such as hunger and sleep, and are '
+				'maintained through exposure to periodically varying stimuli such as light or heat',
+				color='info',
+				className='mt-2'
+			),
 			dbc.CardDeck([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
-						dbc.CardBody('Circadian'),
-						dbc.CardFooter([
+						dbc.CardBody([
+							dcc.Markdown(
+								'Circadian rhythms are the result of activity in the **hypothalamus**, which drives '
+								'hormonal changes that induce feelings of sleepiness or wakefulness. These periodic '
+								'changes in behaviour help ensure animals are active or asleep at appropriate times '
+							)
+						]),
+						dbc.CardFooter(
 							html.A(
-								dbc.Button('More information', color='success', className='mr-1'),
+								dbc.Button('More information', color='success'),
 								href='http://www.scholarpedia.org/article/Models_of_hypothalamus#Circadian_Rhythm_Generation',
 								target='_blank'
 							)
-						])
+						)
 					],
 					className='shadow-sm'
 				),
 				dbc.Card(
 					[
 						dbc.CardHeader('MiRo', className='font-weight-bold'),
-						dbc.CardBody('Circadian')
+						dbc.CardBody([
+							dcc.Markdown(
+								'MiRo exhibits a simple circadian rhythm driven by light as well as his internal '
+								'clock, but rather than causing motivational changes and sleep–seeking behaviour, MiRo '
+								'is forcibly sent to sleep at a certain point of the cycle. MiRo\'s circadian '
+								'rhythm is greatly accelerated compared to mammals, and MiRo has no hormonal '
+								'system or behavioural patterns to regulate.'
+							)
+						])
 					],
 					className='shadow-sm'
 				),
@@ -521,30 +539,59 @@ dashboard_tabs = {
 	),
 	'spatial_info'  : dbc.Tab(
 		[
-			dbc.Alert('Animals have constant access to an enormous amount of sensory data, much of which will not be '
-			          'important or relevant to its current goal. Attention is the process by which a subset of this '
-			          'data is selected as useful and subjected to enhanced processing and integration.',
-			          color='info'),
+			dbc.Alert(
+				'Animals have constant access to an enormous amount of sensory data, much of which will not be '
+				'important or relevant to its current goal. Attention is the process by which a subset of this data is '
+				'selected as useful and subjected to enhanced processing and integration.',
+				color='info',
+				className='mt-2'
+			),
 			dbc.CardDeck([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
-						dbc.CardBody('attention'),
-						dbc.CardFooter([
+						dbc.CardBody([
+							dcc.Markdown(
+								'Attention in mammals is a complex process involving the **thalamus** and the '
+								'**superior colliculus**, as well as some regions of **cortex**. It is often '
+								'considered to comprise the aspects of orienting, filtering, and searching, and can be '
+								'focused on internal or external events, as well as being split between several '
+								'different sources (albeit poorly).'
+							),
+							dcc.Markdown(
+								'Attention is closely related to action selection as well as consciousness. Often, the '
+								'focus of attention (e.g. food) and the associated action (e.g. eating) are so closely '
+								'linked that it is unclear whether it is the action or the attentional locus being '
+								'selected.'
+							)
+						]),
+						dbc.CardFooter(
 							html.A(
-								dbc.Button('More information', color='success', className='mr-1'),
+								dbc.Button('More information', color='success'),
 								href='http://www.scholarpedia.org/article/Attention',
 								target='_blank'
 							)
-						])
-
+						)
 					],
 					className='shadow-sm'
 				),
 				dbc.Card(
 					[
 						dbc.CardHeader('MiRo', className='font-weight-bold'),
-						dbc.CardBody('Attention')
+						dbc.CardBody([
+							dcc.Markdown(
+								'MiRo\'s attentional modal is highly simplified, consisting of a \'salience map\' that '
+								'determines how much interest to show any point of his visual field. The factors '
+								'controlling the map\'s values are predetermined; MiRo cannot learn or decide to pay '
+								'more or less attention to different features. MiRo also cannot direct his attention '
+								'inwards, or indeed exert any control over his attention at all.'
+							),
+							dcc.Markdown(
+								'MiRo\'s attentional system includes only the \'orienting\' aspect of attention. MiRo '
+								'can approach items of interest, but cannot focus on these items by filtering out '
+								'distractions or actively searching for interesting things.'
+							)
+						])
 					],
 					className='shadow-sm'
 				),
@@ -558,20 +605,20 @@ dashboard_modals = html.Div([
 	dbc.Modal(
 		[
 			dbc.ModalHeader('Action selection'),
-			dbc.ModalBody([
+			dbc.ModalBody(
 				dbc.Tabs([
 					dashboard_tabs['action_graph'],
 					dashboard_tabs['action_info']
 				])
-			]),
-			dbc.ModalFooter([
+			),
+			dbc.ModalFooter(
 				dbc.Button(
 					'Close',
 					id='action-modal-close',
 					color='danger',
 					className='ml-auto'
 				)
-			]),
+			),
 		],
 		id='action-modal',
 		centered=True,
@@ -580,20 +627,20 @@ dashboard_modals = html.Div([
 	dbc.Modal(
 		[
 			dbc.ModalHeader('Affect'),
-			dbc.ModalBody([
+			dbc.ModalBody(
 				dbc.Tabs([
 					dashboard_tabs['affect_graph'],
 					dashboard_tabs['affect_info']
 				])
-			]),
-			dbc.ModalFooter([
+			),
+			dbc.ModalFooter(
 				dbc.Button(
 					'Close',
 					id='affect-modal-close',
 					color='danger',
 					className='ml-auto'
 				)
-			]),
+			),
 		],
 		id='affect-modal',
 		centered=True,
@@ -602,15 +649,15 @@ dashboard_modals = html.Div([
 	dbc.Modal(
 		[
 			dbc.ModalHeader('Circadian rhythm'),
-			dbc.ModalBody([dashboard_tabs['circadian_info']]),
-			dbc.ModalFooter([
+			dbc.ModalBody(dashboard_tabs['circadian_info']),
+			dbc.ModalFooter(
 				dbc.Button(
 					'Close',
 					id='circadian-modal-close',
 					color='danger',
 					className='ml-auto'
 				)
-			]),
+			),
 		],
 		id='circadian-modal',
 		centered=True,
@@ -619,20 +666,20 @@ dashboard_modals = html.Div([
 	dbc.Modal(
 		[
 			dbc.ModalHeader('Spatial attention'),
-			dbc.ModalBody([
+			dbc.ModalBody(
 				dbc.Tabs([
 					dashboard_tabs['spatial_graph'],
 					dashboard_tabs['spatial_info']
 				])
-			]),
-			dbc.ModalFooter([
+			),
+			dbc.ModalFooter(
 				dbc.Button(
 					'Close',
 					id='spatial-modal-close',
 					color='danger',
 					className='ml-auto'
 				)
-			]),
+			),
 		],
 		id='spatial-modal',
 		centered=True,
@@ -717,16 +764,19 @@ dashboard_tooltips = html.Div([
 ##########
 # Define dashboard rows
 dashboard_rows = {
+	# TOP
 	'Row_top': dbc.Row(
 		dbc.Col(
 			dbc.Alert(
-				'⬆ To P3 ⬆',
+				'⬆ To higher functions ⬆',
 				color='dark',
-				style=css['bar']
+				className='my-0 py-0 text-center'
 			)
 		),
 		no_gutters=True
 	),
+
+	# Row 1
 	'Row_1': dbc.Row(
 		[
 			dbc.Col(
@@ -777,23 +827,12 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 2
 	'Row_2': dbc.Row(
 		[
-			# TODO: Add an explanatory alert for the dashboard
 			dbc.Col(
-				[
-					dbc.Alert(
-						[
-							html.H4('MiRo Dashboard', className='alert-heading'),
-							html.P('This visual representation of MiRo\'s \"cognitive architecture\" reveals some of the '
-							       'data and processes driving the robot\'s behaviour.'),
-							html.P('Note component connections, observe what happens to each plot as you interact with '
-							       'MiRo, and click any of the \'…\' buttons for more information.')
-						],
-						className='mx-5 shadow-lg',
-						color='dark',
-					),
-				],
+				dashboard_alerts['intro'],
 				width={
 					'size'  : 3,
 					'offset': 0
@@ -802,10 +841,7 @@ dashboard_rows = {
 			dbc.Col(
 				[
 					dbc.Card(
-						dbc.CardBody(
-							html.H1('Σ'),
-							className='text-center',
-						),
+						dbc.CardBody('Sum of current motor output and selected action'),
 						color='light',
 					),
 					html.Div(style=css['line_vertical']),
@@ -834,12 +870,12 @@ dashboard_rows = {
 								'Action selection',
 								dashboard_tools['action_button'],
 							],
-							className='bg-warning',
-							style=css['card-title']
+							className='bg-warning font-weight-bold lead'
 						),
 						dbc.CardBody(dashboard_graphs['action'])
 					],
 					color='warning',
+					inverse=True,
 					outline=True,
 				),
 				width={
@@ -857,6 +893,8 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 3
 	'Row_3': dbc.Row(
 		[
 			dbc.Col(
@@ -920,13 +958,18 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 4
 	'Row_4': dbc.Row(
 		[
 			dbc.Col(
 				dbc.Card(
 					[
 						dbc.CardHeader('Environment'),
-						dbc.CardImg(src='/assets/icon_park.png', bottom=True)
+						dbc.CardImg(
+							src='/assets/icon_park.png',
+							bottom=True
+						)
 					],
 					color='light',
 					className='ml-1',
@@ -944,7 +987,7 @@ dashboard_rows = {
 					html.Div(
 						style=css['arrow_right'],
 						id='tooltip-environment-filter'
-					),
+					)
 				],
 				width={
 					'size'  : 1,
@@ -960,7 +1003,6 @@ dashboard_rows = {
 								'➡ Self-activity reports',
 								style={'font-size': 'x-small'}
 							),
-
 						],
 						color='light'
 					)
@@ -1004,7 +1046,7 @@ dashboard_rows = {
 					html.Div(style=css['line_horizontal']),
 					html.Div(
 						style=css['arrow_right'],
-						id='tooltip-top-spatial',
+						id='tooltip-top-spatial'
 					),
 					html.Div(style=css['line_horizontal']),
 					html.Div(style=css['arrow_right']),
@@ -1023,8 +1065,7 @@ dashboard_rows = {
 								'Spatial attention',
 								dashboard_tools['spatial_button']
 							],
-							className='bg-success',
-							style=css['card-title']
+							className='bg-success font-weight-bold lead'
 						),
 						dbc.CardBody(
 							[
@@ -1037,6 +1078,7 @@ dashboard_rows = {
 						dbc.CardFooter(dashboard_tools['cam_toggle'])
 					],
 					color='success',
+					inverse=True,
 					outline=True,
 					# Some cards are forced to 100% height so that arrows always connect cleanly
 					style={'height': '100%'}
@@ -1054,13 +1096,13 @@ dashboard_rows = {
 								'Affect',
 								dashboard_tools['affect_button']
 							],
-							className='bg-info',
-							style=css['card-title']
+							className='bg-info font-weight-bold lead'
 						),
 						dbc.CardBody(dashboard_graphs['affect'])
 					],
 					color='info',
 					className='mx-1',
+					inverse=True,
 					outline=True,
 					style={'height': '100%'}
 				),
@@ -1072,12 +1114,12 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 5
 	'Row_5': dbc.Row(
 		[
 			dbc.Col(
-				[
-					html.Div(style=css['line_vertical']),
-				],
+				html.Div(style=css['line_vertical']),
 				width={
 					'size'  : 1,
 					'offset': 3
@@ -1136,6 +1178,8 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 6
 	'Row_6': dbc.Row(
 		[
 			dbc.Col(
@@ -1195,18 +1239,20 @@ dashboard_rows = {
 			dbc.Col(
 				[
 					dbc.Card(
-						[
-							dbc.CardBody('Sensory body model')
-						],
+						[dbc.CardBody('Sensory body model')],
 						color='light'
 					),
-					html.Div(style=css['arrow_up'], id='tooltip-bottom-sensory'),
+					html.Div(
+						style=css['arrow_up'],
+						id='tooltip-bottom-sensory'
+					),
 					html.Div(style=css['line_vertical'])
 				],
 				width={
 					'size'  : 1,
 					'offset': 0
 				},
+				# Necessary to keep stretched arrows hidden
 				style={'overflow': 'hidden'}
 			),
 			dbc.Col(
@@ -1217,13 +1263,13 @@ dashboard_rows = {
 								'Circadian rhythm',
 								dashboard_tools['circadian_button']
 							],
-							className='bg-secondary',
-							style=css['card-title']
+							className='bg-primary font-weight-bold lead'
 						),
 						dbc.CardBody(dashboard_graphs['circadian'])
 					],
-					color='secondary',
+					color='primary',
 					className='mx-1',
+					inverse=True,
 					outline=True,
 					style={'height': '100%'}
 				),
@@ -1291,11 +1337,7 @@ dashboard_rows = {
 									className='small',
 									flush=True,
 								),
-								style={
-									'border' : '0px',
-									'margin' : '0px',
-									'padding': '0px'
-								}
+								className='border-0 m-0 p-0'
 							),
 							dbc.CardFooter(
 								'➡ Self-activity reports',
@@ -1316,16 +1358,12 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# Row 7
 	'Row_7': dbc.Row(
 		[
 			dbc.Col(
-				[
-					dbc.Alert(
-						'Many up– and downstream connections are omitted for clarity',
-						className='mx-5 shadow small',
-						color='light',
-					),
-				],
+				dashboard_alerts['connections'],
 				width={
 					'size'  : 3,
 					'offset': 0
@@ -1343,9 +1381,7 @@ dashboard_rows = {
 				}
 			),
 			dbc.Col(
-				[
-					html.Div(style=css['line_vertical']),
-				],
+				html.Div(style=css['line_vertical']),
 				width={
 					'size'  : 1,
 					'offset': 1
@@ -1369,7 +1405,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
-			dbc.Col([
+			dbc.Col(
+				[
 					html.Div(style=css['line_vertical']),
 					html.Div(style=css['arrow_down']),
 				],
@@ -1381,12 +1418,14 @@ dashboard_rows = {
 		],
 		no_gutters=True
 	),
+
+	# BOTTOM
 	'Row_btm': dbc.Row(
 		dbc.Col(
 			dbc.Alert(
-				'⬇ To P1 ⬇',
+				'⬇ To lower functions ⬇',
 				color='dark',
-				style=css['bar']
+				className='my-0 py-0 text-center'
 			)
 		),
 		no_gutters=True
@@ -1436,7 +1475,6 @@ app.layout = html.Div([
 	[Input('interval-fast', 'n_intervals')]
 )
 def callback_fast(_):
-	# start = time.time()
 	# Initialise output data dictionary
 	output = {}
 
@@ -1494,7 +1532,7 @@ def callback_fast(_):
 			'tickvals'  : [-1, -0.5, 0, 0.5, 1],
 			'title'     : 'Salience'
 		},
-		yaxis={'fixedrange': True},
+		yaxis={'fixedrange': True}
 	)
 
 	action_data = [
@@ -1502,7 +1540,7 @@ def callback_fast(_):
 			hoverinfo='text+y',
 			# Format input label to three decimal places
 			hovertext=np.round(-action_priority, decimals=3),
-			marker={'color': 'mediumseagreen'},
+			marker={'color': '#F39C12'},    # Match header colour
 			name='Input',
 			orientation='h',
 			x=action_priority,
@@ -1510,7 +1548,7 @@ def callback_fast(_):
 		),
 		go.Bar(
 			hoverinfo='none',
-			marker={'color': 'silver'},
+			marker={'color': '#95a5a6'},    # Match Flatly theme grey
 			name='Output',
 			orientation='h',
 			x=action_inhibition,
@@ -1560,10 +1598,10 @@ def callback_fast(_):
 	# Layout margins are slightly different without data
 	affect_layout_null = go.Layout(
 		margin={
-			'b': 20,
+			'b': 30,
 			'l': 20,
 			'r': 5,
-			't': 20
+			't': 0
 		},
 		xaxis=affect_xaxis,
 		yaxis=affect_yaxis
@@ -1654,10 +1692,10 @@ def callback_fast(_):
 				'yanchor'    : 'bottom',
 			},
 			margin={
-				'b': 20,
+				'b': 30,
 				'l': 20,
-				'r': 20,
-				't': 20
+				'r': 5,
+				't': 0
 			},
 			showlegend=True,
 			xaxis=affect_xaxis,
@@ -1712,8 +1750,6 @@ def callback_fast(_):
 		output['affect-graph-large'] = {'layout': affect_layout_null}
 		output['sleep-graph-large'] = {'layout': affect_layout_null}
 
-	# end = time.time()
-	# print('Fast callbacks took ' + str(np.round(end - start, decimals=3)) + 's')
 	# Return all outputs
 	return \
 		output['ball-alert'], \
@@ -1741,7 +1777,6 @@ def callback_fast(_):
 	]
 )
 def callback_medium(_, toggle, toggle_large):
-	# start = time.time()
 	# Initialise output data dictionary
 	output = {}
 
@@ -1833,7 +1868,7 @@ def callback_medium(_, toggle, toggle_large):
 	prir = miro_ros_data.core_prir
 
 	# Needs to be updated manually if plot width changes; value includes margins
-	cam_height = 185
+	cam_height = 190
 	cam_height_large = 380
 
 	# Set camera image properties
@@ -1842,7 +1877,7 @@ def callback_medium(_, toggle, toggle_large):
 		'opacity': 1,
 		'sizing' : 'contain',
 		'sizex'  : 0.5,
-		'sizey'  : 1,  # Overridden by 'constrain' property but must still be set
+		'sizey'  : 1,       # Overridden by 'constrain' property but must still be set
 		'source' : caml,
 		'x'      : 0,
 		'xanchor': 'left',
@@ -1966,8 +2001,6 @@ def callback_medium(_, toggle, toggle_large):
 	output['camera-graph'] = {'layout': camera_layout}
 	output['camera-graph-large'] = {'layout': camera_layout_large}
 
-	# end = time.time()
-	# print('Medium callbacks took ' + str(np.round(end - start, decimals=3)) + 's')
 	# Return all outputs
 	return \
 		output['aural-graph'], \
@@ -2010,6 +2043,7 @@ def callback_slow(_):
 				}
 			},
 			mode='lines',
+			name='Time',
 			r=[0, 0.1, hand_length, 0.1, 0],
 			theta=[
 				0,
