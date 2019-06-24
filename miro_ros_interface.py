@@ -9,6 +9,7 @@ from PIL import Image as Im
 from PIL import ImageOps
 
 # Other imports
+import os
 import numpy as np
 import miro2 as miro
 import rospy
@@ -21,7 +22,7 @@ class MiroClient:
 		self.opt = {'Uncompressed': False}
 
 		# Set topic root
-		topic_root = "/miro"
+		topic_root = "/" + os.getenv("MIRO_ROBOT_NAME")
 
 		# Subscribe to ROS topics
 		rospy.Subscriber(topic_root + '/core/affect/state', miro.msg.affect_state, self.callback_core_affect)
@@ -125,4 +126,5 @@ class MiroClient:
 
 	@staticmethod
 	def process_priw(frame):
+		# Get monochrome image
 		return Im.frombytes('L', (1, 256), np.fromstring(frame.data, np.uint8), 'raw')

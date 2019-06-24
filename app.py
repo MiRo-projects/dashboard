@@ -22,7 +22,7 @@ A_WIDTH = A_HEIGHT / 2
 A_VERT_OFFSET = -13
 H_WIDTH = 9
 L_BORDER = 2
-L_COLOUR = '#7b8a8b'    # Matches 'dark' colour from Flatly theme
+L_COLOUR = '#7b8a8b'        # Matches 'dark' colour from Flatly theme
 L_VERT_OFFSET = 25
 V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
@@ -1652,7 +1652,7 @@ def callback_fast(_):
 					}
 				},
 				mode='markers',
-				name='Sleepiness',
+				name='Wakefulness',
 				opacity=0.7,
 				x=np.array(np.round(affect_input.sleep.wakefulness, decimals=3)),
 				y=np.array(np.round(affect_input.sleep.pressure, decimals=3)),
