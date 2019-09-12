@@ -25,7 +25,7 @@ class MiroClient:
 		topic_root = "/" + os.getenv("MIRO_ROBOT_NAME")
 
 		# Subscribe to ROS topics
-		rospy.Subscriber(topic_root + '/core/affect/state', miro.msg.affect_state, self.callback_core_affect)
+		rospy.Subscriber(topic_root + '/core/affect/state', miro.msg.affect, self.callback_core_affect)
 		rospy.Subscriber(topic_root + '/core/affect/time', UInt32, self.callback_core_time)
 		rospy.Subscriber(topic_root + '/core/pril', Image, self.callback_pril)
 		rospy.Subscriber(topic_root + '/core/prir', Image, self.callback_prir)
