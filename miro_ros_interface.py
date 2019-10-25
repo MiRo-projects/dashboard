@@ -69,7 +69,12 @@ class MiroClient:
 	def callback_core_state(self, data):
 		# FIXME: Time of day seems to be integrated into state now
 		self.core_affect = data
-		self.core_time = (24 * data.time_of_day)
+
+		# Convert 'time of day' value into a 12hr value with half-hour precision
+		# TODO: There's surely a neater way of doing this
+		self.core_time = round(0.5 * round((24 * data.time_of_day) / 0.5), 2)
+		if self.core_time > 12.5:
+			self.core_time = self.core_time - 12
 
 	def callback_detect_objects_l(self, data):
 		self.core_detect_objects_l = data

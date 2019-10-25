@@ -29,6 +29,13 @@ V_HEIGHT = 30
 
 ASSET_PATH = 'assets/'
 
+# TODO: Make BG plot legible at smaller size
+# TODO: Reduce vertical size of attention, affect plots
+# TODO: Reduce vertical size of 'Expression' box
+# TODO: Package into easy-install app bundle
+# TODO: Move processing of ROS data to MRI
+# TODO: Remove bottom row and move arrows up by a row to reduce vertical space
+
 ##########
 # Define custom CSS for lines and arrows
 css = {
@@ -157,34 +164,34 @@ sleep_faces = {
 ##########
 # Define dashboard items
 dashboard_alerts = {
-	'ball': dbc.Alert(
-		"⚽",
-		id='ball-alert',
-		color='info',
-		className='m-0 large text-center',
-		is_open=False,
-	),
-	'ball_large': dbc.Alert(
-		"⚽",
-		id='ball-alert-large',
-		color='info',
-		className='m-0 large text-center',
-		is_open=False,
-	),
-	'face': dbc.Alert(
-		"😀",
-		id='face-alert',
-		color='success',
-		className='m-0 large text-center',
-		is_open=False,
-	),
-	'face_large': dbc.Alert(
-		"😀",
-		id='face-alert-large',
-		color='success',
-		className='m-0 large text-center',
-		is_open=False,
-	),
+	# 'ball': dbc.Alert(
+	# 	"⚽",
+	# 	id='ball-alert',
+	# 	color='info',
+	# 	className='m-0 large text-center',
+	# 	is_open=False,
+	# ),
+	# 'ball_large': dbc.Alert(
+	# 	"⚽",
+	# 	id='ball-alert-large',
+	# 	color='info',
+	# 	className='m-0 large text-center',
+	# 	is_open=False,
+	# ),
+	# 'face': dbc.Alert(
+	# 	"😀",
+	# 	id='face-alert',
+	# 	color='success',
+	# 	className='m-0 large text-center',
+	# 	is_open=False,
+	# ),
+	# 'face_large': dbc.Alert(
+	# 	"😀",
+	# 	id='face-alert-large',
+	# 	color='success',
+	# 	className='m-0 large text-center',
+	# 	is_open=False,
+	# ),
 	'intro': dbc.Alert(
 		[
 			html.H4('MiRo Dashboard', className='alert-heading'),
@@ -287,14 +294,12 @@ dashboard_intervals = html.Div([
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
-		# interval=0.5 * 1000,    # Every half-second
-		interval=5 * 1000,
+		interval=0.5 * 1000,    # Every half-second
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		# interval=1 * 1000,      # Every second
-		interval=10 * 1000,
+		interval=1 * 1000,      # Every second
 		n_intervals=0
 	),
 	dcc.Interval(
@@ -537,8 +542,8 @@ dashboard_tabs = {
 			dashboard_graphs['aural_large'],
 			dashboard_graphs['cameras_large'],
 			dashboard_tools['cam_toggle_large'],
-			dashboard_alerts['ball_large'],
-			dashboard_alerts['face_large'],
+			# dashboard_alerts['ball_large'],
+			# dashboard_alerts['face_large'],
 		],
 		label='Live data'
 	),
@@ -1076,10 +1081,11 @@ dashboard_rows = {
 							[
 								dashboard_graphs['aural'],
 								dashboard_graphs['cameras'],
-								dashboard_alerts['ball'],
-								dashboard_alerts['face'],
+								# dashboard_alerts['ball'],
+								# dashboard_alerts['face'],
 							]
 						),
+						# TODO: Remove camera toggle from small mode to reduce vertical space
 						dbc.CardFooter(dashboard_tools['cam_toggle'])
 					],
 					color='success',
@@ -1549,7 +1555,10 @@ def callback_fast(_):
 			'tickvals'  : [-1, -0.5, 0, 0.5, 1],
 			'title'     : 'Salience'
 		},
-		yaxis={'fixedrange': True}
+		yaxis={
+			'fixedrange'    : True,
+			'tickfont.size' : 11
+		}
 	)
 
 	action_data = [
@@ -2042,15 +2051,15 @@ def callback_slow(_):
 
 	# Circadian graph
 	# if miro_ros_data.core_time.data is not None:
-	if miro_ros_data.core_affect is not None:
+	if miro_ros_data.core_time is not None:
 		# circ_input = miro_ros_data.core_time.data
-		print(miro_ros_data.core_affect.time_of_day)
-		# Convert 'time of day' value into a 12hr value with half-hour precision
-		circ_input = round(0.5 * round((24 * miro_ros_data.core_affect.time_of_day) / 0.5), 2)
+		circ_input = miro_ros_data.core_time
+		# print(miro_ros_data.core_time)
 	else:
 		circ_input = 0
 
 	# TODO: Make circadian clock display leading zeroes
+	# TODO: Update clock to have two hands and show accurate time
 	circ_hrs = range(0, 24)
 	# circ_hrs = ['{:02d}'.format(item) for item in range(0, 24)]
 
@@ -2089,7 +2098,6 @@ def callback_slow(_):
 		'range'         : [0, 1],
 		'showgrid'      : False,
 		'showticklabels': False,
-		# 'title'         : 'Valence',
 		'zeroline'      : False,
 	}
 
@@ -2106,10 +2114,10 @@ def callback_slow(_):
 			'yanchor': 'middle'
 		}],
 		margin={
-			'b': 20,
-			'l': 10,
-			'r': 10,
-			't': 20
+			'b': 0,
+			'l': 0,
+			'r': 0,
+			't': 0
 		},
 		xaxis=circ_axis,
 		yaxis=circ_axis,
