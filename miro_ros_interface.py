@@ -25,15 +25,19 @@ class MiroClient:
 		topic_root = "/" + os.getenv("MIRO_ROBOT_NAME")
 
 		# Subscribe to ROS topics
-		rospy.Subscriber(topic_root + '/core/affect/state', miro.msg.affect, self.callback_core_affect)
-		rospy.Subscriber(topic_root + '/core/affect/time', UInt32, self.callback_core_time)
+		# FIXME: affect/state moved to animal/state, detect_ball and detect_fact merged into detect_object, time???
+		# rospy.Subscriber(topic_root + '/core/affect/state', miro.msg.affect, self.callback_core_affect)
+		rospy.Subscriber(topic_root + '/core/animal/state', miro.msg.animal_state, self.callback_core_state)
+		# rospy.Subscriber(topic_root + '/core/affect/time', UInt32, self.callback_core_time)
 		rospy.Subscriber(topic_root + '/core/pril', Image, self.callback_pril)
 		rospy.Subscriber(topic_root + '/core/prir', Image, self.callback_prir)
 		rospy.Subscriber(topic_root + '/core/priw', Image, self.callback_priw)
-		rospy.Subscriber(topic_root + '/core/detect_ball_l', UInt16MultiArray, self.callback_detect_ball_l)
-		rospy.Subscriber(topic_root + '/core/detect_ball_r', UInt16MultiArray, self.callback_detect_ball_r)
-		rospy.Subscriber(topic_root + '/core/detect_face_l', Float32MultiArray, self.callback_detect_face_l)
-		rospy.Subscriber(topic_root + '/core/detect_face_r', Float32MultiArray, self.callback_detect_face_r)
+		rospy.Subscriber(topic_root + '/core/detect_objects_l', miro.msg.objects, self.callback_detect_objects_l)
+		rospy.Subscriber(topic_root + '/core/detect_objects_r', miro.msg.objects, self.callback_detect_objects_r)
+		# rospy.Subscriber(topic_root + '/core/detect_ball_l', UInt16MultiArray, self.callback_detect_ball_l)
+		# rospy.Subscriber(topic_root + '/core/detect_ball_r', UInt16MultiArray, self.callback_detect_ball_r)
+		# rospy.Subscriber(topic_root + '/core/detect_face_l', Float32MultiArray, self.callback_detect_face_l)
+		# rospy.Subscriber(topic_root + '/core/detect_face_r', Float32MultiArray, self.callback_detect_face_r)
 		rospy.Subscriber(topic_root + '/core/selection/priority', Float32MultiArray, self.callback_selection_priority)
 		rospy.Subscriber(topic_root + '/core/selection/inhibition', Float32MultiArray, self.callback_selection_inhibition)
 
@@ -47,42 +51,52 @@ class MiroClient:
 
 		# Default data
 		self.core_affect = None
-		self.core_time = None
 		self.core_pril = None
 		self.core_prir = None
 		self.core_priw = None
-		self.core_detect_ball_l = None
-		self.core_detect_ball_r = None
-		self.core_detect_face_l = None
-		self.core_detect_face_r = None
+		self.core_detect_objects_l = None
+		self.core_detect_objects_r = None
+		# self.core_detect_ball_l = None
+		# self.core_detect_ball_r = None
+		# self.core_detect_face_l = None
+		# self.core_detect_face_r = None
+		self.core_time = None
 		self.selection_priority = None
 		self.selection_inhibition = None
 		self.sensors_caml = None
 		self.sensors_camr = None
 
-	def callback_core_affect(self, data):
+	def callback_core_state(self, data):
+		# FIXME: Time of day seems to be integrated into state now
 		self.core_affect = data
+		self.core_time = (24 * data.time_of_day)
 
-	def callback_core_time(self, data):
-		self.core_time = data
+	def callback_detect_objects_l(self, data):
+		self.core_detect_objects_l = data
 
-	def callback_detect_ball_l(self, data):
-		self.core_detect_ball_l = data
+	def callback_detect_objects_r(self, data):
+		self.core_detect_objects_r = data
 
-	def callback_detect_ball_r(self, data):
-		self.core_detect_ball_r = data
-
-	def callback_detect_face_l(self, data):
-		self.core_detect_face_l = data
-
-	def callback_detect_face_r(self, data):
-		self.core_detect_face_r = data
+	# def callback_detect_ball_l(self, data):
+	# 	self.core_detect_ball_l = data
+	#
+	# def callback_detect_ball_r(self, data):
+	# 	self.core_detect_ball_r = data
+	#
+	# def callback_detect_face_l(self, data):
+	# 	self.core_detect_face_l = data
+	#
+	# def callback_detect_face_r(self, data):
+	# 	self.core_detect_face_r = data
 
 	def callback_selection_priority(self, data):
 		self.selection_priority = data
 
 	def callback_selection_inhibition(self, data):
 		self.selection_inhibition = data
+
+	# def callback_core_time(self, data):
+	# 	self.core_time = data
 
 	# TODO: Image stitching before passing images back to dashboard
 	def callback_caml(self, frame):
@@ -118,7 +132,8 @@ class MiroClient:
 	@staticmethod
 	def process_pri(frame):
 		# Get monochrome image
-		pri = Im.frombytes('L', (182, 100), np.fromstring(frame.data, np.uint8), 'raw')
+		# pri = Im.frombytes('L', (182, 100), np.fromstring(frame.data, np.uint8), 'raw')
+		pri = Im.frombytes('L', (178, 100), np.fromstring(frame.data, np.uint8), 'raw')
 
 		# TODO: Convert to image type with full alpha channel and make background transparent
 		# Invert image for overlaying
