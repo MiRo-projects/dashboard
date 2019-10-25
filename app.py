@@ -27,6 +27,8 @@ L_VERT_OFFSET = 25
 V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
 
+ASSET_PATH = 'assets/'
+
 ##########
 # Define custom CSS for lines and arrows
 css = {
@@ -114,42 +116,42 @@ css = {
 # Define affect faces
 affect_faces = {
 	'0.0': {
-		'0.0': 'assets/face_frowning.png',
-		'0.3': 'assets/face_crying.png',
-		'0.6': 'assets/face_crying_loud.png',
-		'0.9': 'assets/face_crying_loud.png',
+		'0.0': ASSET_PATH + 'face_frowning.png',
+		'0.3': ASSET_PATH + 'face_crying.png',
+		'0.6': ASSET_PATH + 'face_crying_loud.png',
+		'0.9': ASSET_PATH + 'face_crying_loud.png',
 	},
 	'0.2': {
-		'0.0': 'assets/face_pensive.png',
-		'0.3': 'assets/face_frowning_slight.png',
-		'0.6': 'assets/face_anguished.png',
-		'0.9': 'assets/face_anguished.png',
+		'0.0': ASSET_PATH + 'face_pensive.png',
+		'0.3': ASSET_PATH + 'face_frowning_slight.png',
+		'0.6': ASSET_PATH + 'face_anguished.png',
+		'0.9': ASSET_PATH + 'face_anguished.png',
 	},
 	'0.4': {
-		'0.0': 'assets/face_expressionless.png',
-		'0.3': 'assets/face_neutral.png',
-		'0.6': 'assets/face_open_mouth.png',
-		'0.9': 'assets/face_open_mouth.png',
+		'0.0': ASSET_PATH + 'face_expressionless.png',
+		'0.3': ASSET_PATH + 'face_neutral.png',
+		'0.6': ASSET_PATH + 'face_open_mouth.png',
+		'0.9': ASSET_PATH + 'face_open_mouth.png',
 	},
 	'0.6': {
-		'0.0': 'assets/face_relieved.png',
-		'0.3': 'assets/face_smiling_slight.png',
-		'0.6': 'assets/face_grinning.png',
-		'0.9': 'assets/face_grinning.png',
+		'0.0': ASSET_PATH + 'face_relieved.png',
+		'0.3': ASSET_PATH + 'face_smiling_slight.png',
+		'0.6': ASSET_PATH + 'face_grinning.png',
+		'0.9': ASSET_PATH + 'face_grinning.png',
 	},
 	'0.8': {
-		'0.0': 'assets/face_smiling.png',
-		'0.3': 'assets/face_smiling_eyes.png',
-		'0.6': 'assets/face_grinning_eyes.png',
-		'0.9': 'assets/face_grinning_eyes.png',
+		'0.0': ASSET_PATH + 'face_smiling.png',
+		'0.3': ASSET_PATH + 'face_smiling_eyes.png',
+		'0.6': ASSET_PATH + 'face_grinning_eyes.png',
+		'0.9': ASSET_PATH + 'face_grinning_eyes.png',
 	},
 }
 
 sleep_faces = {
-	'0.00': 'assets/face_sleeping.png',
-	'0.25': 'assets/face_sleepy.png',
-	'0.50': 'assets/face_no_mouth.png',
-	'0.75': 'assets/face_no_mouth.png',
+	'0.00': ASSET_PATH + 'face_sleeping.png',
+	'0.25': ASSET_PATH + 'face_sleepy.png',
+	'0.50': ASSET_PATH + 'face_no_mouth.png',
+	'0.75': ASSET_PATH + 'face_no_mouth.png',
 }
 
 ##########
@@ -261,7 +263,8 @@ dashboard_graphs = {
 	),
 	'circadian': dcc.Graph(
 		id='circadian-graph',
-		animate=True,
+		# 'Animate' property is incompatible with changing background images
+		# animate=True,
 		config={'displayModeBar': False},
 		style={
 			'height': '100%',
@@ -284,12 +287,14 @@ dashboard_intervals = html.Div([
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
-		interval=0.5 * 1000,    # Every half-second
+		# interval=0.5 * 1000,    # Every half-second
+		interval=5 * 1000,
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		interval=1 * 1000,      # Every second
+		# interval=1 * 1000,      # Every second
+		interval=10 * 1000,
 		n_intervals=0
 	),
 	dcc.Interval(
@@ -967,7 +972,7 @@ dashboard_rows = {
 					[
 						dbc.CardHeader('Environment'),
 						dbc.CardImg(
-							src='/assets/icon_park.png',
+							src=ASSET_PATH + 'icon_park.png',
 							bottom=True
 						)
 					],
@@ -1256,27 +1261,36 @@ dashboard_rows = {
 				style={'overflow': 'hidden'}
 			),
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader(
-							[
-								'Circadian rhythm',
-								dashboard_tools['circadian_button']
-							],
-							className='bg-primary font-weight-bold lead'
-						),
-						dbc.CardBody(dashboard_graphs['circadian'])
-					],
-					color='primary',
-					className='mx-1',
-					inverse=True,
-					outline=True,
-					style={'height': '100%'}
-				),
+				[
+					dbc.Card(
+						[
+							dbc.CardHeader(
+								[
+									'Circadian rhythm',
+									dashboard_tools['circadian_button']
+								],
+								className='bg-primary font-weight-bold lead'
+							),
+							dbc.CardBody(dashboard_graphs['circadian'])
+						],
+						color='primary',
+						className='mx-1',
+						inverse=True,
+						outline=True,
+						style={'height': '60%'}
+					),
+					html.Div(
+						style=css['arrow_up'],
+						id='tooltip-bottom-circadian',
+					),
+					html.Div(style=css['line_vertical']),
+				],
 				width={
-					'size'  : 2,
-					'offset': 0
-				}
+					'size'  : 1,
+					'offset': 1
+				},
+				# Necessary to keep stretched arrows hidden
+				style={'overflow': 'hidden'}
 			),
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
@@ -1296,7 +1310,7 @@ dashboard_rows = {
 										dbc.ListGroupItem([
 											'Ears',
 											dbc.CardImg(
-												src='assets/express_ear.png',
+												src=ASSET_PATH + 'express_ear.png',
 												className='float-right',
 												style={'width': '20px'}
 											),
@@ -1304,7 +1318,7 @@ dashboard_rows = {
 										dbc.ListGroupItem([
 											'Eyelids',
 											dbc.CardImg(
-												src='assets/express_eye.png',
+												src=ASSET_PATH + 'express_eye.png',
 												className='float-right',
 												style={'width': '20px'}
 											),
@@ -1312,7 +1326,7 @@ dashboard_rows = {
 										dbc.ListGroupItem([
 											'Lights',
 											dbc.CardImg(
-												src='assets/express_lights.png',
+												src=ASSET_PATH + 'express_lights.png',
 												className='float-right',
 												style={'width': '20px'}
 											),
@@ -1320,7 +1334,7 @@ dashboard_rows = {
 										dbc.ListGroupItem([
 											'Tail',
 											dbc.CardImg(
-												src='assets/express_dog.png',
+												src=ASSET_PATH + 'express_dog.png',
 												className='float-right',
 												style={'width': '20px'}
 											),
@@ -1328,7 +1342,7 @@ dashboard_rows = {
 										dbc.ListGroupItem([
 											'Vocalisation',
 											dbc.CardImg(
-												src='assets/express_speaker.png',
+												src=ASSET_PATH + 'express_speaker.png',
 												className='float-right',
 												style={'width': '20px'}
 											),
@@ -1389,10 +1403,10 @@ dashboard_rows = {
 			),
 			dbc.Col(
 				[
-					html.Div(style=css['arrow_up']),
+					# html.Div(style=css['arrow_up']),
 					html.Div(style=css['line_vertical']),
 				],
-				id='tooltip-bottom-circadian',
+				# id='tooltip-bottom-circadian',
 				width={
 					'size'  : 1,
 					'offset': 1
@@ -1439,8 +1453,8 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
 
 app.title = 'MiRo Dashboard'
 
-# CSS modification needed to remove corner 'undo' button
-app.css.append_css({'external_url': 'assets/stylesheet.css'})
+# # CSS modification needed to remove corner 'undo' button
+# app.css.append_css({'external_url': ASSET_PATH + 'stylesheet.css'})
 
 app.layout = html.Div([
 	dashboard_rows['Row_top'],
@@ -1462,10 +1476,11 @@ app.layout = html.Div([
 # Define dashboard callbacks
 @app.callback(
 	[
-		Output('ball-alert', 'is_open'),
-		Output('ball-alert-large', 'is_open'),
-		Output('face-alert', 'is_open'),
-		Output('face-alert-large', 'is_open'),
+		# FIXME: Update alert code in MRI
+		# Output('ball-alert', 'is_open'),
+		# Output('ball-alert-large', 'is_open'),
+		# Output('face-alert', 'is_open'),
+		# Output('face-alert-large', 'is_open'),
 		Output('action-graph', 'figure'),
 		Output('action-graph-large', 'figure'),
 		Output('affect-graph', 'figure'),
@@ -1478,23 +1493,24 @@ def callback_fast(_):
 	# Initialise output data dictionary
 	output = {}
 
-	# Ball alert
-	if (miro_ros_data.core_detect_ball_l is not None) and (miro_ros_data.core_detect_ball_r is not None):
-		if (len(miro_ros_data.core_detect_ball_l.data) > 1) or (len(miro_ros_data.core_detect_ball_r.data) > 1):
-			output['ball-alert'] = True
-			output['ball-alert-large'] = True
-		else:
-			output['ball-alert'] = False
-			output['ball-alert-large'] = False
-
-	# Face alert
-	if (miro_ros_data.core_detect_face_l is not None) and (miro_ros_data.core_detect_face_r is not None):
-		if (len(miro_ros_data.core_detect_face_l.data) > 1) or (len(miro_ros_data.core_detect_face_r.data) > 1):
-			output['face-alert'] = True
-			output['face-alert-large'] = True
-		else:
-			output['face-alert'] = False
-			output['face-alert-large'] = False
+	# FIXME: Update or remove ball and face alerts
+	# # Ball alert
+	# if (miro_ros_data.core_detect_ball_l is not None) and (miro_ros_data.core_detect_ball_r is not None):
+	# 	if (len(miro_ros_data.core_detect_ball_l.data) > 1) or (len(miro_ros_data.core_detect_ball_r.data) > 1):
+	# 		output['ball-alert'] = True
+	# 		output['ball-alert-large'] = True
+	# 	else:
+	# 		output['ball-alert'] = False
+	# 		output['ball-alert-large'] = False
+	#
+	# # Face alert
+	# if (miro_ros_data.core_detect_face_l is not None) and (miro_ros_data.core_detect_face_r is not None):
+	# 	if (len(miro_ros_data.core_detect_face_l.data) > 1) or (len(miro_ros_data.core_detect_face_r.data) > 1):
+	# 		output['face-alert'] = True
+	# 		output['face-alert-large'] = True
+	# 	else:
+	# 		output['face-alert'] = False
+	# 		output['face-alert-large'] = False
 
 	# Action graph
 	if (miro_ros_data.selection_priority is not None) and (miro_ros_data.selection_inhibition is not None):
@@ -1508,12 +1524,13 @@ def callback_fast(_):
 	# TODO: Extract this list automatically
 	action_list = [
 		'Mull',
-		'Halt',
 		'Orient',
 		'Approach',
-		'Avert',
 		'Flee',
-		'Retreat'
+		'Avert',
+		'Halt',
+		'Retreat',
+		'Special'
 	]
 
 	action_layout = go.Layout(
@@ -1752,15 +1769,21 @@ def callback_fast(_):
 
 	# Return all outputs
 	return \
-		output['ball-alert'], \
-		output['ball-alert-large'], \
-		output['face-alert'], \
-		output['face-alert-large'], \
 		output['action-graph'], \
 		output['action-graph-large'], \
 		output['affect-graph'], \
 		output['affect-graph-large'], \
 		output['sleep-graph-large']
+		# FIXME: Alerts are broken until MRI is updates
+		# output['ball-alert'], \
+		# output['ball-alert-large'], \
+		# output['face-alert'], \
+		# output['face-alert-large'], \
+		# output['action-graph'], \
+		# output['action-graph-large'], \
+		# output['affect-graph'], \
+		# output['affect-graph-large'], \
+		# output['sleep-graph-large']
 
 
 @app.callback(
@@ -2018,8 +2041,12 @@ def callback_slow(_):
 	output = {}
 
 	# Circadian graph
-	if miro_ros_data.core_time.data is not None:
-		circ_input = miro_ros_data.core_time.data
+	# if miro_ros_data.core_time.data is not None:
+	if miro_ros_data.core_affect is not None:
+		# circ_input = miro_ros_data.core_time.data
+		print(miro_ros_data.core_affect.time_of_day)
+		# Convert 'time of day' value into a 12hr value with half-hour precision
+		circ_input = round(0.5 * round((24 * miro_ros_data.core_affect.time_of_day) / 0.5), 2)
 	else:
 		circ_input = 0
 
@@ -2032,56 +2059,81 @@ def callback_slow(_):
 	hand_length = 0.9
 
 	# TODO: Disable polar plot zoom
-	circ_data = [
-		go.Scatterpolar(
-			fill='toself',
-			fillcolor='steelblue',
-			marker={
-				'line': {
-					'color': 'black',
-					'width': 0.5
-				}
-			},
-			mode='lines',
-			name='Time',
-			r=[0, 0.1, hand_length, 0.1, 0],
-			theta=[
-				0,
-				circ_hrs[circ_input - hand_width],
-				circ_hrs[circ_input],
-				circ_hrs[circ_input + hand_width],
-				0
-			]
-		)
-	]
+	# circ_data = [
+	# 	go.Scatterpolar(
+	# 		fill='toself',
+	# 		fillcolor='steelblue',
+	# 		marker={
+	# 			'line': {
+	# 				'color': 'black',
+	# 				'width': 0.5
+	# 			}
+	# 		},
+	# 		mode='lines',
+	# 		name='Time',
+	# 		r=[0, 0.1, hand_length, 0.1, 0],
+	# 		theta=[
+	# 			0,
+	# 			circ_hrs[circ_input - hand_width],
+	# 			circ_hrs[circ_input],
+	# 			circ_hrs[circ_input + hand_width],
+	# 			0
+	# 		]
+	# 	)
+	# ]
+
+	circ_axis = {
+		'fixedrange'    : True,
+		'linewidth'     : 0,
+		'mirror'        : True,
+		'range'         : [0, 1],
+		'showgrid'      : False,
+		'showticklabels': False,
+		# 'title'         : 'Valence',
+		'zeroline'      : False,
+	}
 
 	circ_layout = go.Layout(
+		images=[{
+			'opacity': 1,
+			'sizing' : 'contain',
+			'sizex'  : 1,
+			'sizey'  : 1,
+			'source' : ASSET_PATH + 'clock_' + str(circ_input) + '.png',
+			'x'      : 0.5,
+			'y'      : 0.5,
+			'xanchor': 'center',
+			'yanchor': 'middle'
+		}],
 		margin={
 			'b': 20,
 			'l': 10,
 			'r': 10,
 			't': 20
 		},
-		polar={
-			'angularaxis': {
-				'categoryarray': circ_hrs,
-				'direction'    : 'clockwise',
-				'nticks'       : 8,
-				'period'       : 15,
-				'rotation'     : 270,
-				'showgrid'     : False,
-				'type'         : 'category',
-			},
-			'radialaxis' : {
-				'range'     : [0, 1],
-				'visible'   : False
-			},
-		},
+		xaxis=circ_axis,
+		yaxis=circ_axis,
+		# polar={
+		# 	'angularaxis': {
+		# 		'categoryarray': circ_hrs,
+		# 		'direction'    : 'clockwise',
+		# 		'nticks'       : 8,
+		# 		'period'       : 15,
+		# 		'rotation'     : 270,
+		# 		'showgrid'     : False,
+		# 		'type'         : 'category',
+		# 	},
+		# 	'radialaxis' : {
+		# 		'range'     : [0, 1],
+		# 		'visible'   : False
+		# 	},
+		# },
 		showlegend=False
 	)
 
 	output['circadian-graph'] = {
-		'data'  : circ_data,
+		# 'data'  : circ_data,
+		'data'  : None,
 		'layout': circ_layout
 	}
 
