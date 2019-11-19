@@ -32,8 +32,8 @@ class MiroClient:
 		rospy.Subscriber(topic_root + '/core/pril', Image, self.callback_pril)
 		rospy.Subscriber(topic_root + '/core/prir', Image, self.callback_prir)
 		rospy.Subscriber(topic_root + '/core/priw', Image, self.callback_priw)
-		rospy.Subscriber(topic_root + '/core/detect_objects_l', miro.msg.objects, self.callback_detect_objects_l)
-		rospy.Subscriber(topic_root + '/core/detect_objects_r', miro.msg.objects, self.callback_detect_objects_r)
+		# rospy.Subscriber(topic_root + '/core/detect_objects_l', miro.msg.objects, self.callback_detect_objects_l)
+		# rospy.Subscriber(topic_root + '/core/detect_objects_r', miro.msg.objects, self.callback_detect_objects_r)
 		# rospy.Subscriber(topic_root + '/core/detect_ball_l', UInt16MultiArray, self.callback_detect_ball_l)
 		# rospy.Subscriber(topic_root + '/core/detect_ball_r', UInt16MultiArray, self.callback_detect_ball_r)
 		# rospy.Subscriber(topic_root + '/core/detect_face_l', Float32MultiArray, self.callback_detect_face_l)
@@ -54,8 +54,8 @@ class MiroClient:
 		self.core_pril = None
 		self.core_prir = None
 		self.core_priw = None
-		self.core_detect_objects_l = None
-		self.core_detect_objects_r = None
+		# self.core_detect_objects_l = None
+		# self.core_detect_objects_r = None
 		# self.core_detect_ball_l = None
 		# self.core_detect_ball_r = None
 		# self.core_detect_face_l = None
@@ -76,11 +76,11 @@ class MiroClient:
 		if self.core_time > 12.5:
 			self.core_time = self.core_time - 12
 
-	def callback_detect_objects_l(self, data):
-		self.core_detect_objects_l = data
-
-	def callback_detect_objects_r(self, data):
-		self.core_detect_objects_r = data
+	# def callback_detect_objects_l(self, data):
+	# 	self.core_detect_objects_l = data
+	#
+	# def callback_detect_objects_r(self, data):
+	# 	self.core_detect_objects_r = data
 
 	# def callback_detect_ball_l(self, data):
 	# 	self.core_detect_ball_l = data
