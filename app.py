@@ -11,9 +11,8 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
 # Import system and ROS components
-import rospy
 import numpy as np
-import miro_ros_interface as mri
+from basic_functions import miro_ros_interface as mri
 
 ##########
 # Define line and arrow dimensions
@@ -1783,7 +1782,7 @@ def callback_fast(_):
 		output['affect-graph'], \
 		output['affect-graph-large'], \
 		output['sleep-graph-large']
-		# FIXME: Alerts are broken until MRI is updates
+		# FIXME: Alerts are broken until MRI is updated
 		# output['ball-alert'], \
 		# output['ball-alert-large'], \
 		# output['face-alert'], \
@@ -2200,7 +2199,7 @@ def modal_spatial(n1, n2, is_open):
 if __name__ == '__main__':
 	# Initialise a new ROS node
 	# 'disable_rostime' must be True to work in Pycharm
-	rospy.init_node("dash_listener", anonymous=True, disable_rostime=True)
+	# rospy.init_node("dash_listener", anonymous=True, disable_rostime=True)
 
 	# Initialise MiRo client
 	miro_ros_data = mri.MiroClient()
