@@ -277,6 +277,11 @@ dashboard_graphs = {
 			'width' : '100%',
 		}
 	),
+	'motivation': dcc.Graph(
+		id='motivation-graph',
+		config={'displayModeBar': False},
+		style={'width': '100%'}
+	),
 	'sleep_large': dcc.Graph(
 		id='sleep-graph-large',
 		# 'Animate' property is incompatible with changing images
@@ -788,6 +793,7 @@ dashboard_rows = {
 	# Row 1
 	'Row_1': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -799,6 +805,8 @@ dashboard_rows = {
 					'offset': 3
 				},
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -806,6 +814,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -816,6 +826,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -826,6 +838,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -840,6 +854,7 @@ dashboard_rows = {
 	# Row 2
 	'Row_2': dbc.Row(
 		[
+			# Column 1-3
 			dbc.Col(
 				dashboard_alerts['intro'],
 				width={
@@ -847,6 +862,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 4
 			dbc.Col(
 				[
 					dbc.Card(
@@ -860,6 +877,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -871,6 +890,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6-10
 			dbc.Col(
 				dbc.Card(
 					[
@@ -892,6 +913,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -906,6 +929,7 @@ dashboard_rows = {
 	# Row 3
 	'Row_3': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -913,6 +937,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -920,6 +946,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -931,6 +959,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -942,6 +972,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -953,6 +985,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -971,6 +1005,7 @@ dashboard_rows = {
 	# Row 4
 	'Row_4': dbc.Row(
 		[
+			# Column 1
 			dbc.Col(
 				dbc.Card(
 					[
@@ -988,6 +1023,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 2
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal_clear']),
@@ -996,13 +1033,19 @@ dashboard_rows = {
 					html.Div(
 						style=css['arrow_right'],
 						id='tooltip-environment-filter'
-					)
+					),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right'])
 				],
 				width={
 					'size'  : 1,
 					'offset': 0
 				},
 			),
+
+			# Column 3
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1014,15 +1057,38 @@ dashboard_rows = {
 							),
 						],
 						color='light'
-					)
+					),
+					dbc.Card(
+						[
+							dbc.CardHeader(
+								[
+									'Hyp.',
+									# dashboard_tools['circadian_button']
+								],
+								className='bg-danger font-weight-bold lead'
+							),
+							dbc.CardBody('Put hypothalamus here'),
+							dbc.CardFooter(
+								'➡ Internal drives',
+								style={'font-size': 'x-small'}
+							),
+						],
+						color='light'
+					),
 				],
 				width={
 					'size'  : 1,
 					'offset': 0
 				}
 			),
+
+			# Column 4
 			dbc.Col(
 				[
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal']),
@@ -1034,11 +1100,17 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(
 					[
 						html.Div(style=css['line_horizontal_clear_left']),
 						html.Div(style=css['line_horizontal']),
+						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal']),
+						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal_clear']),
 						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_horizontal']),
 						html.Div(style=css['arrow_right_clear']),
@@ -1050,6 +1122,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1059,6 +1133,10 @@ dashboard_rows = {
 					),
 					html.Div(style=css['line_horizontal']),
 					html.Div(style=css['arrow_right']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right']),
 					html.Div(style=css['line_vertical']),
 				],
 				width={
@@ -1066,6 +1144,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 7-9
 			dbc.Col(
 				dbc.Card(
 					[
@@ -1098,6 +1178,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 10-12
 			dbc.Col(
 				dbc.Card(
 					[
@@ -1128,6 +1210,7 @@ dashboard_rows = {
 	# Row 5
 	'Row_5': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1135,6 +1218,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1142,6 +1227,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1153,6 +1240,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1164,6 +1253,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 11
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1175,6 +1266,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1192,6 +1285,7 @@ dashboard_rows = {
 	# Row 6
 	'Row_6': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(
 					[
@@ -1205,6 +1299,8 @@ dashboard_rows = {
 					'offset': 3
 				},
 			),
+
+			# Column 5
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1215,6 +1311,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1235,6 +1333,8 @@ dashboard_rows = {
 				},
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 7
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1246,6 +1346,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1265,6 +1367,8 @@ dashboard_rows = {
 				# Necessary to keep stretched arrows hidden
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1297,6 +1401,8 @@ dashboard_rows = {
 				# Necessary to keep stretched arrows hidden
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 11
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1304,6 +1410,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1381,6 +1489,7 @@ dashboard_rows = {
 	# Row 7
 	'Row_7': dbc.Row(
 		[
+			# Column 1-3
 			dbc.Col(
 				dashboard_alerts['connections'],
 				width={
@@ -1388,6 +1497,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1399,6 +1510,8 @@ dashboard_rows = {
 					'offset': 2
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1406,6 +1519,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					# html.Div(style=css['arrow_up']),
@@ -1417,6 +1532,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 11
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1424,6 +1541,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1774,6 +1893,48 @@ def callback_fast(_):
 		output['affect-graph'] = {'layout': affect_layout_null}
 		output['affect-graph-large'] = {'layout': affect_layout_null}
 		output['sleep-graph-large'] = {'layout': affect_layout_null}
+
+	# Motivation graph
+	motivation_input = miro_ros_data.core_motivation
+
+	if motivation_input is not None:
+
+		motivation_layout = go.Layout(
+
+		)
+
+		motivation_data = {
+			'social': go.Scatter(
+				marker={
+					'color': 'steelblue',
+					'size' : 15,
+					'line' : {
+						'width': 0.5,
+						'color': 'black'
+					}
+				},
+				mode='lines',
+				name='Social',
+				opacity=0.7,
+				# x=np.array(np.round(affect_input.emotion.valence, decimals=3)),
+				# y=np.array(np.round(affect_input.emotion.arousal, decimals=3)),
+			),
+			'temperature': go.Scatter(
+				marker={
+					'color': 'seagreen',
+					'size' : 15,
+					'line' : {
+						'width': 0.5,
+						'color': 'black'
+					}
+				},
+				mode='markers',
+				name='Mood',
+				opacity=0.7,
+				x=np.array(np.round(affect_input.mood.valence, decimals=3)),
+				y=np.array(np.round(affect_input.mood.arousal, decimals=3)),
+			),
+		}
 
 	# Return all outputs
 	return \
