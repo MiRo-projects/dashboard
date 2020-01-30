@@ -1,0 +1,3 @@
+[submodule "basic_functions"]
+	path = basic_functions
+	url = https://github.com/MiRo-projects/basic_functions/
