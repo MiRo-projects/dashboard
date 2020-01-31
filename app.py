@@ -19,6 +19,7 @@ from basic_functions import miro_ros_interface as mri
 A_HEIGHT = 20
 A_WIDTH = A_HEIGHT / 2
 A_VERT_OFFSET = -13
+E_COLOUR = 'darkolivegreen' # Colour for 'environment' bar
 H_WIDTH = 9
 L_BORDER = 2
 L_COLOUR = '#7b8a8b'        # Matches 'dark' colour from Flatly theme
@@ -86,6 +87,21 @@ css = {
 		'height'       : 0,
 		'margin'       : 'auto',
 		'width'        : 0
+	},
+	# TODO: Make text go from bottom to top
+	'bar_left': {
+		'background-color'          : E_COLOUR,
+		'border-top-right-radius'   : '10px',
+		'border-bottom-right-radius': '10px',
+		'color'                     : 'white',
+		'float'                     : 'left',
+		'font-weight'               : 'bold',
+		'height'                    : '100%',
+		'left'                      : 0,
+		'position'                  : 'absolute',
+		'text-align'                : 'center',
+		'width'                     : '20px',
+		'writing-mode'              : 'vertical-rl'
 	},
 	'line_horizontal': {
 		'background-color': L_COLOUR,
@@ -285,7 +301,7 @@ dashboard_graphs = {
 		id='motivation-graph',
 		config={'displayModeBar': False},
 		style={
-			'height': '150px',
+			'height': '250px',
 			'width': '100%'
 		}
 	),
@@ -1115,45 +1131,37 @@ dashboard_rows = {
 		[
 			# Column 1
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader('Environment'),
-						dbc.CardImg(
-							src=ASSET_PATH + 'icon_park.png',
-							bottom=True
-						)
-					],
-					color='light',
-					className='ml-1',
-				),
+				[
+					html.Div('ENVIRONMENT', style=css['bar_left']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right'],),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right']),
+				],
+				# dbc.Card(
+				# 	[
+				# 		dbc.CardHeader('Environment'),
+				# 		dbc.CardImg(
+				# 			src=ASSET_PATH + 'icon_park.png',
+				# 			bottom=True
+				# 		)
+				# 	],
+				# 	color='light',
+				# 	className='ml-1',
+				# ),
 				width={
 					'size'  : 1,
 					'offset': 0
 				}
 			),
 
-			# Column 2
-			dbc.Col(
-				[
-					html.Div(style=css['line_horizontal_clear']),
-					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(
-						style=css['arrow_right'],
-						id='tooltip-environment-filter'
-					),
-					html.Div(style=css['line_horizontal_clear']),
-					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(style=css['arrow_right'])
-				],
-				width={
-					'size'  : 1,
-					'offset': 0
-				},
-			),
-
-			# Column 3
+			# Column 2-3
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1166,6 +1174,7 @@ dashboard_rows = {
 						],
 						color='light'
 					),
+					html.Div(style=css['line_horizontal_clear']),
 					dbc.Card(
 						[
 							dbc.CardHeader(
@@ -1190,7 +1199,7 @@ dashboard_rows = {
 					),
 				],
 				width={
-					'size'  : 1,
+					'size'  : 2,
 					'offset': 0
 				}
 			),
@@ -1201,6 +1210,8 @@ dashboard_rows = {
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
@@ -1225,6 +1236,8 @@ dashboard_rows = {
 						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_horizontal_clear']),
 						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal_clear']),
+						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_horizontal']),
 						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_vertical']),
@@ -1246,6 +1259,8 @@ dashboard_rows = {
 					),
 					html.Div(style=css['line_horizontal']),
 					html.Div(style=css['arrow_right']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal']),
@@ -1957,8 +1972,8 @@ def callback_fast(_, data):
 				'orientation': 'h',
 				'x'          : 0.5,
 				'xanchor'    : 'center',
-				'y'          : 1,
-				'yanchor'    : 'top',
+				'y'          : 1.01,
+				'yanchor'    : 'bottom',
 			},
 			margin={
 				'b': 30,
@@ -2020,17 +2035,6 @@ def callback_fast(_, data):
 		output['sleep-graph-large'] = {'layout': affect_layout_null}
 
 	# Motivation graph
-	motivation_input = data
-	# TODO: Add actual MiRo data
-	# miro_ros_data.core_motivation.data[0]
-	motivation_input['social'].append(np.random.random())
-	motivation_input['ball'].append(np.random.random())
-
-	# Trim data to plot length
-	if len(motivation_input['social']) >= MOTIVATION_LENGTH:
-		motivation_input['social'].pop(0)
-		motivation_input['ball'].pop(0)
-
 	motivation_layout = go.Layout(
 		legend={
 			# 'font'       : {
@@ -2043,8 +2047,8 @@ def callback_fast(_, data):
 			'yanchor'    : 'bottom',
 		},
 		margin={
-			'b': 0,
-			'l': 0,
+			'b': 20,
+			'l': 20,
 			'r': 0,
 			't': 0
 		},
@@ -2054,20 +2058,29 @@ def callback_fast(_, data):
 			'range'     : [0, MOTIVATION_LENGTH],
 			'showgrid'      : False,
 			'showticklabels': False,
-			# 'title'     : 'Time',
-			'zeroline'  : False
+			'title'     : 'Time',
+			'zeroline'  : True
 		},
 		yaxis={
 			'fixedrange': True,
 			'range'     : [0, 1],
 			'showgrid'      : False,
 			'showticklabels': False,
-			# 'title'     : 'Motivation',
-			'zeroline'  : False
+			'title'     : 'Motivation',
+			'zeroline'  : True
 		}
 	)
 
+	motivation_input = data
 	if motivation_input is not None:
+		motivation_input['social'].append(miro_ros_data.core_motivation.data[0])
+		motivation_input['ball'].append(miro_ros_data.core_motivation.data[1])
+
+		# Trim data to plot length
+		if len(motivation_input['social']) >= MOTIVATION_LENGTH:
+			motivation_input['social'].pop(0)
+			motivation_input['ball'].pop(0)
+
 		motivation_data = {
 			'social': go.Scatter(
 				hoverinfo='none',
