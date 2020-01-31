@@ -19,10 +19,11 @@ from basic_functions import miro_ros_interface as mri
 A_HEIGHT = 20
 A_WIDTH = A_HEIGHT / 2
 A_VERT_OFFSET = -13
-E_COLOUR = 'darkolivegreen' # Colour for 'environment' bar
+E_COLOUR = 'darkolivegreen'     # Colour for 'environment' bar
+E_WIDTH = 25
 H_WIDTH = 9
 L_BORDER = 2
-L_COLOUR = '#7b8a8b'        # Matches 'dark' colour from Flatly theme
+L_COLOUR = '#7b8a8b'            # Matches 'dark' colour from Flatly theme
 L_VERT_OFFSET = 25
 V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
@@ -37,7 +38,7 @@ MOTIVATION_LENGTH = 30
 # TODO: Move processing of ROS data to MRI
 # TODO: Remove bottom row and move arrows up by a row to reduce vertical space
 # TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
-# TODO: Move fixed items such as plot axes into a Store object and pass into callbacks instead of defining anew each time
+# TODO: Move fixed items such as plot axes into Store objects and pass into callbacks instead of defining anew each time
 # TODO: Change how vision images are shown (see: https://community.plot.ly/t/looking-for-a-better-way-to-display-image/15672)
 
 ##########
@@ -100,8 +101,8 @@ css = {
 		'left'                      : 0,
 		'position'                  : 'absolute',
 		'text-align'                : 'center',
-		'width'                     : '20px',
-		'writing-mode'              : 'vertical-rl'
+		'width'                     : str(E_WIDTH) + 'px',
+		'writing-mode'              : 'sideways-lr'
 	},
 	'line_horizontal': {
 		'background-color': L_COLOUR,
