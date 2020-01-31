@@ -2067,7 +2067,7 @@ def callback_fast(_, data):
 			'range'     : [0, 1],
 			'showgrid'      : False,
 			'showticklabels': False,
-			'title'     : 'Motivation',
+			'title'     : 'Energy',
 			'zeroline'  : True
 		}
 	)
