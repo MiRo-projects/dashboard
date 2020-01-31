@@ -25,8 +25,9 @@ L_COLOUR = '#7b8a8b'        # Matches 'dark' colour from Flatly theme
 L_VERT_OFFSET = 25
 V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
-
+# Define other constants
 ASSET_PATH = 'assets/'
+MOTIVATION_LENGTH = 30
 
 # TODO: Make BG plot legible at smaller size
 # TODO: Reduce vertical size of attention, affect plots
@@ -34,6 +35,9 @@ ASSET_PATH = 'assets/'
 # TODO: Package into easy-install app bundle
 # TODO: Move processing of ROS data to MRI
 # TODO: Remove bottom row and move arrows up by a row to reduce vertical space
+# TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
+# TODO: Move fixed items such as plot axes into a Store object and pass into callbacks instead of defining anew each time
+# TODO: Change how vision images are shown (see: https://community.plot.ly/t/looking-for-a-better-way-to-display-image/15672)
 
 ##########
 # Define custom CSS for lines and arrows
@@ -280,7 +284,20 @@ dashboard_graphs = {
 	'motivation': dcc.Graph(
 		id='motivation-graph',
 		config={'displayModeBar': False},
-		style={'width': '100%'}
+		style={
+			'height': '150px',
+			'width': '100%'
+		}
+	),
+	'motivation_large': dcc.Graph(
+		id='motivation-graph-large',
+		# 'Animate' property is incompatible with changing images
+		# animate=True,
+		config={'displayModeBar': False},
+		style={
+			'height': '500px',
+			'width' : '100%',
+		}
 	),
 	'sleep_large': dcc.Graph(
 		id='sleep-graph-large',
@@ -344,6 +361,13 @@ dashboard_tools = {
 	'circadian_button': dbc.Button(
 		'＋',
 		id='circadian-modal-open',
+		color='light',
+		size='sm',
+		style={'float': 'right'}
+	),
+	'motivation_button': dbc.Button(
+		'＋',
+		id='motivation-modal-open',
 		color='light',
 		size='sm',
 		style={'float': 'right'}
@@ -541,6 +565,68 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
+	'motivation_graph' : dbc.Tab(dashboard_graphs['motivation_large'], label='Live data'),
+	'motivation_info': dbc.Tab(
+		[
+			dbc.Alert(
+				'Animal behaviour is motivated by intrinsic and extrinsic drives, such as the need to keep warm or to '
+				'eat. These drives may often be in conflict, and yet an animal must satisfy all its needs to survive.',
+				color='info',
+				className='mt-2'
+			),
+			dbc.CardDeck([
+				dbc.Card(
+					[
+						dbc.CardHeader('Mammals', className='font-weight-bold'),
+						dbc.CardBody([
+							dcc.Markdown(
+								'The **hypothalamus** is a small structure at the base of the brain responsible for '
+								'regulating and co-ordinating many of the basic functions necessary for life, such as '
+								'fluid and electrolyte balance, thermoregulation, the sleep-wake cycle, and stress '
+								'response. It is responsible for maintaining a stable bodily state (homeostasis), as '
+								'well as responding to the external environment in certain situations (such as the '
+								'presence of a predator or mate).'
+							),
+							dcc.Markdown(
+								'To exert control over many bodily functions, the hypothalamus regulates endocrine, '
+								'autonomic, and behavioural functions through the release of hormones as well as '
+								'direct neural projections.'
+							)
+						]),
+						dbc.CardFooter(
+							html.A(
+								dbc.Button('More information', color='success'),
+								href='http://www.scholarpedia.org/article/Hypothalamus',
+								target='_blank'
+							)
+						)
+					],
+					className='shadow-sm'
+				),
+				dbc.Card(
+					[
+						dbc.CardHeader('MiRo', className='font-weight-bold'),
+						dbc.CardBody([
+							dcc.Markdown(
+								'MiRo has a far simpler motivational system consisting of \'drives\' that increase in '
+								'proportion to the divergence of certain sensory information from predefined setpoints. '
+								'For example, the position on a simulated \'thermal gradient\' or the amount of time '
+								'passed since interacting with a human. '
+							),
+							dcc.Markdown(
+								'MiRo has no endocrine or autonomic systems, and so his motivational system influences '
+								'his behaviour only by modifying the attentional salience of environmental features. '
+								'This changes how likely he is to pay attention to (i.e. orient towards and approach) '
+								'particular aspects of his environment.'
+							)
+						])
+					],
+					className='shadow-sm'
+				),
+			])
+		],
+		label='Information'
+	),
 	'spatial_graph': dbc.Tab(
 		[
 			dashboard_graphs['aural_large'],
@@ -674,6 +760,28 @@ dashboard_modals = html.Div([
 			),
 		],
 		id='circadian-modal',
+		centered=True,
+		size='xl'
+	),
+	dbc.Modal(
+		[
+			dbc.ModalHeader('Motivation'),
+			dbc.ModalBody(
+				dbc.Tabs([
+					dashboard_tabs['motivation_graph'],
+					dashboard_tabs['motivation_info']
+				])
+			),
+			dbc.ModalFooter(
+				dbc.Button(
+					'Close',
+					id='motivation-modal-close',
+					color='danger',
+					className='ml-auto'
+				)
+			),
+		],
+		id='motivation-modal',
 		centered=True,
 		size='xl'
 	),
@@ -1062,18 +1170,23 @@ dashboard_rows = {
 						[
 							dbc.CardHeader(
 								[
-									'Hyp.',
-									# dashboard_tools['circadian_button']
+									'Motivation',
+									dashboard_tools['motivation_button']
 								],
 								className='bg-danger font-weight-bold lead'
 							),
-							dbc.CardBody('Put hypothalamus here'),
+							dbc.CardBody(dashboard_graphs['motivation']),
 							dbc.CardFooter(
 								'➡ Internal drives',
-								style={'font-size': 'x-small'}
+								style={
+									'color'    : 'black',
+									'font-size': 'x-small'
+								}
 							),
 						],
-						color='light'
+						color='danger',
+						inverse=True,
+						outline=True,
 					),
 				],
 				width={
@@ -1592,7 +1705,14 @@ app.layout = html.Div([
 	dashboard_rows['Row_btm'],
 	dashboard_modals,
 	dashboard_tooltips,
-	dashboard_intervals
+	dashboard_intervals,
+	dcc.Store(
+		id='motivation_memory',
+		data={
+			'social': [],
+			'ball'  : [],
+		}
+	),   # https://community.plot.ly/t/announcing-the-storage-component/13758
 ])
 
 
@@ -1609,11 +1729,15 @@ app.layout = html.Div([
 		Output('action-graph-large', 'figure'),
 		Output('affect-graph', 'figure'),
 		Output('affect-graph-large', 'figure'),
-		Output('sleep-graph-large', 'figure')
+		Output('sleep-graph-large', 'figure'),
+		Output('motivation-graph', 'figure'),
+		Output('motivation-graph-large', 'figure'),
+		Output('motivation_memory', 'data')
 	],
-	[Input('interval-fast', 'n_intervals')]
+	[Input('interval-fast', 'n_intervals')],
+	[State('motivation_memory', 'data')]
 )
-def callback_fast(_):
+def callback_fast(_, data):
 	# Initialise output data dictionary
 	output = {}
 
@@ -1683,7 +1807,7 @@ def callback_fast(_):
 		go.Bar(
 			hoverinfo='text+y',
 			# Format input label to three decimal places
-			hovertext=np.round(-action_priority, decimals=3),
+#TEMPFIX			hovertext=np.round(-action_priority, decimals=3),
 			marker={'color': '#F39C12'},    # Match header colour
 			name='Input',
 			orientation='h',
@@ -1753,6 +1877,7 @@ def callback_fast(_):
 
 	# Update affect
 	affect_input = miro_ros_data.core_affect
+	
 	if affect_input is not None:
 		affect_data = {
 			'emotion': go.Scatter(
@@ -1832,8 +1957,8 @@ def callback_fast(_):
 				'orientation': 'h',
 				'x'          : 0.5,
 				'xanchor'    : 'center',
-				'y'          : 1.01,
-				'yanchor'    : 'bottom',
+				'y'          : 1,
+				'yanchor'    : 'top',
 			},
 			margin={
 				'b': 30,
@@ -1895,46 +2020,106 @@ def callback_fast(_):
 		output['sleep-graph-large'] = {'layout': affect_layout_null}
 
 	# Motivation graph
-	motivation_input = miro_ros_data.core_motivation
+	motivation_input = data
+	# TODO: Add actual MiRo data
+	# miro_ros_data.core_motivation.data[0]
+	motivation_input['social'].append(np.random.random())
+	motivation_input['ball'].append(np.random.random())
+
+	# Trim data to plot length
+	if len(motivation_input['social']) >= MOTIVATION_LENGTH:
+		motivation_input['social'].pop(0)
+		motivation_input['ball'].pop(0)
+
+	motivation_layout = go.Layout(
+		legend={
+			# 'font'       : {
+			# 	'size': 3
+			# },
+			'orientation': 'h',
+			'x'          : 1,
+			'xanchor'    : 'right',
+			'y'          : 1,
+			'yanchor'    : 'bottom',
+		},
+		margin={
+			'b': 0,
+			'l': 0,
+			'r': 0,
+			't': 0
+		},
+		# showlegend=True,
+		xaxis={
+			'fixedrange': True,
+			'range'     : [0, MOTIVATION_LENGTH],
+			'showgrid'      : False,
+			'showticklabels': False,
+			# 'title'     : 'Time',
+			'zeroline'  : False
+		},
+		yaxis={
+			'fixedrange': True,
+			'range'     : [0, 1],
+			'showgrid'      : False,
+			'showticklabels': False,
+			# 'title'     : 'Motivation',
+			'zeroline'  : False
+		}
+	)
 
 	if motivation_input is not None:
-
-		motivation_layout = go.Layout(
-
-		)
-
 		motivation_data = {
 			'social': go.Scatter(
+				hoverinfo='none',
 				marker={
 					'color': 'steelblue',
 					'size' : 15,
-					'line' : {
-						'width': 0.5,
-						'color': 'black'
-					}
+					'line' : {'width': 0.5}
 				},
 				mode='lines',
 				name='Social',
 				opacity=0.7,
-				# x=np.array(np.round(affect_input.emotion.valence, decimals=3)),
-				# y=np.array(np.round(affect_input.emotion.arousal, decimals=3)),
+				x=np.arange(0, MOTIVATION_LENGTH, 1),
+				y=np.array(motivation_input['social']),
 			),
-			'temperature': go.Scatter(
+			'ball'  : go.Scatter(
+				hoverinfo='none',
 				marker={
-					'color': 'seagreen',
+					'color': 'mediumseagreen',
 					'size' : 15,
-					'line' : {
-						'width': 0.5,
-						'color': 'black'
-					}
+					'line' : {'width': 0.5}
 				},
-				mode='markers',
-				name='Mood',
+				mode='lines',
+				name='Ball',
 				opacity=0.7,
-				x=np.array(np.round(affect_input.mood.valence, decimals=3)),
-				y=np.array(np.round(affect_input.mood.arousal, decimals=3)),
+				x=np.arange(0, MOTIVATION_LENGTH, 1),
+				y=np.array(motivation_input['ball']),
 			),
 		}
+
+		motivation_figure = {
+			'data'  : [
+				motivation_data['social'],
+				motivation_data['ball'],
+			],
+			'layout': motivation_layout
+		}
+
+		motivation_figure_large = {
+			'data'  : [
+				motivation_data['social'],
+				motivation_data['ball'],
+			],
+			'layout': motivation_layout
+		}
+
+		output['motivation-graph'] = motivation_figure
+		output['motivation-graph-large'] = motivation_figure_large
+
+	else:
+		output['motivation-graph'] = {'layout': motivation_layout}
+
+
 
 	# Return all outputs
 	return \
@@ -1942,7 +2127,10 @@ def callback_fast(_):
 		output['action-graph-large'], \
 		output['affect-graph'], \
 		output['affect-graph-large'], \
-		output['sleep-graph-large']
+		output['sleep-graph-large'], \
+		output['motivation-graph'], \
+		output['motivation-graph-large'], \
+		motivation_input
 		# FIXME: Alerts are broken until MRI is updated
 		# output['ball-alert'], \
 		# output['ball-alert-large'], \
@@ -2346,6 +2534,18 @@ def modal_affect(n1, n2, is_open):
 
 
 @app.callback(
+	Output('motivation-modal', 'is_open'),
+	[Input('motivation-modal-open', 'n_clicks'), Input('motivation-modal-close', 'n_clicks')],
+	[State('motivation-modal', 'is_open')]
+)
+def modal_spatial(n1, n2, is_open):
+	if n1 or n2:
+		return not is_open
+
+	return is_open
+
+
+@app.callback(
 	Output('spatial-modal', 'is_open'),
 	[Input('spatial-modal-open', 'n_clicks'), Input('spatial-modal-close', 'n_clicks')],
 	[State('spatial-modal', 'is_open')]
@@ -2357,16 +2557,16 @@ def modal_spatial(n1, n2, is_open):
 	return is_open
 
 
+##########
+# Main dashboard loop
 if __name__ == '__main__':
-	# Initialise a new ROS node
-	# 'disable_rostime' must be True to work in Pycharm
-	# rospy.init_node("dash_listener", anonymous=True, disable_rostime=True)
-
 	# Initialise MiRo client
 	miro_ros_data = mri.MiroClient()
 
 	# This is only to suppress warnings TEMPORARILY
 	# app.config['suppress_callback_exceptions'] = True
 
-	# Hot reloading seems to cause "IOError: [Errno 11] Resource temporarily unavailable" errors
-	app.run_server(debug=False)
+	# "debug=False" because hot reloading seems to cause "IOError: [Errno 11] Resource temporarily unavailable" errors
+	# "host='0.0.0.0'" allows connections from non-localhost addresses
+	app.run_server(debug=False, host='0.0.0.0')
+
