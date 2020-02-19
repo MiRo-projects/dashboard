@@ -11,8 +11,12 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
 # Import system and ROS components
+import base64
 import numpy as np
+from io import BytesIO
 from basic_functions import miro_ros_interface as mri
+
+import time
 
 ##########
 # Line and arrow dimensions and colours
@@ -31,6 +35,7 @@ V_HEIGHT = 30
 ASSET_PATH = 'assets/'
 CAM_HEIGHT = 190
 CAM_HEIGHT_LARGE = 380
+CAM2_SCALE = 4
 PRIW_HEIGHT = 60
 PRIW_HEIGHT_LARGE = 80
 MOTIVATION_LENGTH = 30
@@ -42,7 +47,6 @@ MOTIVATION_LENGTH = 30
 # TODO: Move processing of ROS data to MRI
 # TODO: Remove bottom row and move arrows up by a row to reduce vertical space
 # TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
-# TODO: Change how vision images are shown (see: https://community.plot.ly/t/looking-for-a-better-way-to-display-image/15672)
 
 ##########
 # Define custom CSS for lines and arrows
@@ -291,6 +295,14 @@ dashboard_graphs = {
 		config={'displayModeBar': False},
 		style={'width': '100%'}
 	),
+	# TODO: Design visual attention graph layout here
+	'cameras2': html.Div([
+		html.Img(id='audio-pri-wide'),
+	    html.Img(id='camera-img-left'),
+		html.Img(id='camera-img-right'),
+		html.Img(id='camera-pri-left'),
+		html.Img(id='camera-pri-right'),
+	]),
 	'circadian': dcc.Graph(
 		id='circadian-graph',
 		# 'Animate' property is incompatible with changing background images
@@ -335,12 +347,12 @@ dashboard_intervals = html.Div([
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
-		interval=0.2 * 1000,    # Every half-second
+		interval=0.1 * 1000,    # Every tenth of a second
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		interval=0.5 * 1000,      # Every second
+		interval=0.2 * 1000,    # Every fifth of a second
 		n_intervals=0
 	),
 	dcc.Interval(
@@ -619,6 +631,7 @@ dashboard_layouts['sleep_layout'] = go.Layout(dashboard_layouts['affect_layout']
 dashboard_layouts['sleep_layout']['xaxis']['title'] = 'Wakefulness'
 dashboard_layouts['sleep_layout']['yaxis']['title'] = 'Pressure'
 
+# TODO: Remove these once new camera plots are made
 dashboard_layouts['aural_layout_large'] = go.Layout(dashboard_layouts['aural_layout'])
 dashboard_layouts['aural_layout_large']['height'] = PRIW_HEIGHT_LARGE
 
@@ -1179,7 +1192,7 @@ dashboard_tooltips = html.Div([
 ])
 
 ##########
-# Define dashboard rows
+# Dashboard content
 dashboard_rows = {
 	# TOP
 	'Row_top': dbc.Row(
@@ -1565,8 +1578,9 @@ dashboard_rows = {
 						),
 						dbc.CardBody(
 							[
-								dashboard_graphs['aural'],
-								dashboard_graphs['cameras'],
+								# dashboard_graphs['aural'],
+								# dashboard_graphs['cameras'],
+								dashboard_graphs['cameras2']
 								# dashboard_alerts['ball'],
 								# dashboard_alerts['face'],
 							]
@@ -1978,15 +1992,10 @@ dashboard_rows = {
 }
 
 ##########
-# Define dashboard layout
+# Include everything in the app layout
 # See other included themes: https://bootswatch.com
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
-
 app.title = 'MiRo Dashboard'
-
-# # CSS modification needed to remove corner 'undo' button
-# app.css.append_css({'external_url': ASSET_PATH + 'stylesheet.css'})
-
 app.layout = html.Div([
 	dashboard_rows['Row_top'],
 	dashboard_rows['Row_1'],
@@ -2008,6 +2017,9 @@ app.layout = html.Div([
 		}
 	),   # https://community.plot.ly/t/announcing-the-storage-component/13758
 ])
+
+# CSS modification needed to remove corner 'undo' button
+# app.css.append_css({'external_url': ASSET_PATH + 'stylesheet.css'})
 
 
 ##########
@@ -2305,10 +2317,15 @@ def callback_fast(_, data):
 
 @app.callback(
 	[
-		Output('aural-graph', 'figure'),
-		Output('aural-graph-large', 'figure'),
-		Output('camera-graph', 'figure'),
-		Output('camera-graph-large', 'figure')
+		# Output('aural-graph', 'figure'),
+		# Output('aural-graph-large', 'figure'),
+		# Output('camera-graph', 'figure'),
+		# Output('camera-graph-large', 'figure'),
+		Output('camera-img-left', 'src'),
+		Output('camera-img-right', 'src'),
+		Output('camera-pri-left', 'src'),
+		Output('camera-pri-right', 'src'),
+		Output('audio-pri-wide', 'src'),
 	],
 	[
 		Input('interval-medium', 'n_intervals'),
@@ -2318,80 +2335,116 @@ def callback_fast(_, data):
 )
 def callback_medium(_, toggle, toggle_large):
 	# Initialise output data dictionary
-	output = {}
+	# output = {}
 
-	# Aural
-	priw = miro_perception.priw
-
-	# Set image properties
-	if priw is not None:
-		priw_image = [{
-			'layer'  : 'below',
-			'opacity': 1,
-			'sizing' : 'stretch',
-			'sizex'  : 1,
-			'sizey'  : 1,
-			'source' : priw,
-			'x'      : 0,
-			'y'      : 0,
-			'xref'   : 'paper',
-			'yref'   : 'paper',
-			'yanchor': 'bottom'
-		}]
-	else:
-		priw_image = []
-
-	# Update aural layout with imagery
-	dashboard_layouts['aural_layout']['images'] = priw_image
-	dashboard_layouts['aural_layout_large']['images'] = priw_image
-
-	# Finalise graph output
-	output['aural-graph'] = {'layout': dashboard_layouts['aural_layout']}
-	output['aural-graph-large'] = {'layout': dashboard_layouts['aural_layout_large']}
+	# # Aural
+	# priw = miro_perception.priw
+	#
+	# # Set image properties
+	# if priw is not None:
+	# 	priw_image = [{
+	# 		'layer'  : 'below',
+	# 		'opacity': 1,
+	# 		'sizing' : 'stretch',
+	# 		'sizex'  : 1,
+	# 		'sizey'  : 1,
+	# 		'source' : priw,
+	# 		'x'      : 0,
+	# 		'y'      : 0,
+	# 		'xref'   : 'paper',
+	# 		'yref'   : 'paper',
+	# 		'yanchor': 'bottom'
+	# 	}]
+	# else:
+	# 	priw_image = []
+	#
+	# # Update aural layout with imagery
+	# dashboard_layouts['aural_layout']['images'] = priw_image
+	# dashboard_layouts['aural_layout_large']['images'] = priw_image
+	#
+	# # Finalise graph output
+	# output['aural-graph'] = {'layout': dashboard_layouts['aural_layout']}
+	# output['aural-graph-large'] = {'layout': dashboard_layouts['aural_layout_large']}
 
 	# Cameras
+	# caml = miro_perception.caml
+	# camr = miro_perception.camr
+	# pril = miro_perception.pril
+	# prir = miro_perception.prir
+
+	# # Update camera images
+	# dashboard_layouts['caml_image']['source'] = caml
+	# dashboard_layouts['camr_image']['source'] = camr
+	# dashboard_layouts['pril_image']['source'] = pril
+	# dashboard_layouts['prir_image']['source'] = prir
+	#
+	# # Show vision with attention overlay, vision alone, or nothing
+	# if (caml is not None) and (camr is not None):
+	# 	if toggle or toggle_large:
+	# 		cam_images = [
+	# 			dashboard_layouts['caml_image'],
+	# 			dashboard_layouts['camr_image'],
+	# 			dashboard_layouts['pril_image'],
+	# 			dashboard_layouts['prir_image']
+	# 		]
+	# 	else:
+	# 		cam_images = [
+	# 			dashboard_layouts['caml_image'],
+	# 			dashboard_layouts['camr_image']
+	# 		]
+	# else:
+	# 	cam_images = []
+	#
+	# # Update camera layout with imagery
+	# dashboard_layouts['camera_layout']['images'] = cam_images
+	# dashboard_layouts['camera_layout_large']['images'] = cam_images
+	#
+	# # Finalise vision layout
+	# output['camera-graph'] = {'layout': dashboard_layouts['camera_layout']}
+	# output['camera-graph-large'] = {'layout': dashboard_layouts['camera_layout_large']}
+
+	# NEW METHOD
 	caml = miro_perception.caml
 	camr = miro_perception.camr
 	pril = miro_perception.pril
 	prir = miro_perception.prir
+	priw = miro_perception.priw
 
-	# Update camera images
-	dashboard_layouts['caml_image']['source'] = caml
-	dashboard_layouts['camr_image']['source'] = camr
-	dashboard_layouts['pril_image']['source'] = pril
-	dashboard_layouts['prir_image']['source'] = prir
+	# TODO: Add 'if input is not none' part
 
-	# Show vision with attention overlay, vision alone, or nothing
-	if (caml is not None) and (camr is not None):
-		if toggle or toggle_large:
-			cam_images = [
-				dashboard_layouts['caml_image'],
-				dashboard_layouts['camr_image'],
-				dashboard_layouts['pril_image'],
-				dashboard_layouts['prir_image']
-			]
-		else:
-			cam_images = [
-				dashboard_layouts['caml_image'],
-				dashboard_layouts['camr_image']
-			]
+	caml_image = process_frame(caml, CAM2_SCALE)
+	camr_image = process_frame(camr, CAM2_SCALE)
+	if pril is not None:
+		pril_image = process_frame(pril, CAM2_SCALE)
+		prir_image = process_frame(prir, CAM2_SCALE)
+		priw_image = process_frame(priw, 1)
 	else:
-		cam_images = []
-
-	# Update camera layout with imagery
-	dashboard_layouts['camera_layout']['images'] = cam_images
-	dashboard_layouts['camera_layout_large']['images'] = cam_images
-
-	# Finalise vision layout
-	output['camera-graph'] = {'layout': dashboard_layouts['camera_layout']}
-	output['camera-graph-large'] = {'layout': dashboard_layouts['camera_layout_large']}
+		pril_image = None
+		prir_image = None
+		priw_image = None
 
 	# Return all outputs
 	return \
-		output['aural-graph'], \
-		output['aural-graph-large'], \
-		output['camera-graph'], \
-		output['camera-graph-large']
+		caml_image, \
+		camr_image, \
+		pril_image, \
+		prir_image, \
+		priw_image
+		# output['aural-graph'], \
+		# output['aural-graph-large'], \
+		# output['camera-graph'], \
+		# output['camera-graph-large'], \
+		# caml_out
+
+# TODO: Make this a function in MRI?
+def process_frame(data, scale):
+	# Create base64 URI from image: https://stackoverflow.com/questions/16065694/is-it-possible-to-create-encoded-base64-url-from-image-object
+	frame_buffer = BytesIO()
+	frame_sml = data.resize(tuple(dim / scale for dim in data.size))
+	frame_sml.save(frame_buffer, format='PNG')
+	frame_b64 = base64.b64encode(frame_buffer.getvalue())
+
+	return 'data:image/png;base64,{}'.format(frame_b64)
 
 
 @app.callback(
@@ -2507,7 +2560,6 @@ def callback_slow(_):
 def modal_action(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2519,7 +2571,6 @@ def modal_action(n1, n2, is_open):
 def modal_affect(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2528,10 +2579,9 @@ def modal_affect(n1, n2, is_open):
 	[Input('circadian-modal-open', 'n_clicks'), Input('circadian-modal-close', 'n_clicks')],
 	[State('circadian-modal', 'is_open')]
 )
-def modal_affect(n1, n2, is_open):
+def modal_circadian(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2543,7 +2593,6 @@ def modal_affect(n1, n2, is_open):
 def modal_spatial(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2555,23 +2604,21 @@ def modal_spatial(n1, n2, is_open):
 def modal_spatial(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
 ##########
 # Main dashboard loop
 if __name__ == '__main__':
-	# Initialise MiRo client
-	# miro_ros_data = mri.MiroClient()
-
+	# Initialise MiRo clients
 	miro_core = mri.MiRoCore()
 	miro_perception = mri.MiRoPerception()
 
 	# This is only to suppress warnings TEMPORARILY
 	# app.config['suppress_callback_exceptions'] = True
 
-	# "debug=False" because hot reloading seems to cause "IOError: [Errno 11] Resource temporarily unavailable" errors
+	# "debug=False" because hot reloading causes "IOError: [Errno 11] Resource temporarily unavailable" errors
 	# "host='0.0.0.0'" allows connections from non-localhost addresses
-	app.run_server(debug=False, host='0.0.0.0')
+	# I *think* "threaded=True" gives a performance boost to multiple callbacks
+	app.run_server(debug=False, host='0.0.0.0', threaded=True)
 
