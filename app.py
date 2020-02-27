@@ -11,29 +11,45 @@ from dash.dependencies import Input, Output, State
 import plotly.graph_objs as go
 
 # Import system and ROS components
+import base64
 import numpy as np
+from io import BytesIO
 from basic_functions import miro_ros_interface as mri
 
+import time
+
 ##########
-# Define line and arrow dimensions
+# Line and arrow dimensions and colours
 A_HEIGHT = 20
 A_WIDTH = A_HEIGHT / 2
 A_VERT_OFFSET = -13
+E_COLOUR = 'darkolivegreen'     # Colour for 'environment' bar
+E_WIDTH = 25
 H_WIDTH = 9
 L_BORDER = 2
-L_COLOUR = '#7b8a8b'        # Matches 'dark' colour from Flatly theme
+L_COLOUR = '#7b8a8b'            # Matches 'dark' colour from Flatly theme
 L_VERT_OFFSET = 25
 V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
-
+# Other constants
 ASSET_PATH = 'assets/'
+CAM_HEIGHT = 120
+CAM_WIDTH = CAM_HEIGHT * 1.7777
+CAM_HEIGHT_LARGE = 290
+CAM_WIDTH_LARGE = CAM_HEIGHT_LARGE * 1.7777
+CAM_SCALE = 4
+PRI_OPACITY = 0.5
+PRIW_HEIGHT = 30
+PRIW_WIDTH = CAM_WIDTH * 2
+MOTIVATION_LENGTH = 30
 
 # TODO: Make BG plot legible at smaller size
-# TODO: Reduce vertical size of attention, affect plots
+# TODO: Reduce vertical size of affect plots
 # TODO: Reduce vertical size of 'Expression' box
 # TODO: Package into easy-install app bundle
 # TODO: Move processing of ROS data to MRI
 # TODO: Remove bottom row and move arrows up by a row to reduce vertical space
+# TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
 
 ##########
 # Define custom CSS for lines and arrows
@@ -82,6 +98,21 @@ css = {
 		'height'       : 0,
 		'margin'       : 'auto',
 		'width'        : 0
+	},
+	# TODO: Make text go from bottom to top
+	'bar_left': {
+		'background-color'          : E_COLOUR,
+		'border-top-right-radius'   : '10px',
+		'border-bottom-right-radius': '10px',
+		'color'                     : 'white',
+		'float'                     : 'left',
+		'font-weight'               : 'bold',
+		'height'                    : '100%',
+		'left'                      : 0,
+		'position'                  : 'absolute',
+		'text-align'                : 'center',
+		'width'                     : str(E_WIDTH) + 'px',
+		'writing-mode'              : 'sideways-lr'
 	},
 	'line_horizontal': {
 		'background-color': L_COLOUR,
@@ -257,16 +288,166 @@ dashboard_graphs = {
 		config={'displayModeBar': False},
 		style={'width': '100%'}
 	),
-	'cameras': dcc.Graph(
-		id='camera-graph',
-		config={'displayModeBar': False},
-		style={'width': '100%'}
+	# 'cameras': dcc.Graph(
+	# 	id='camera-graph',
+	# 	config={'displayModeBar': False},
+	# 	style={'width': '100%'}
+	# ),
+	# 'cameras_large': dcc.Graph(
+	# 	id='camera-graph-large',
+	# 	config={'displayModeBar': False},
+	# 	style={'width': '100%'}
+	# ),
+
+	'cameras_large': dbc.CardBody(
+		[
+			# html.H6(
+			# 	'Visual',
+			# 	className='card-subtitle',
+			# 	style={
+			# 		'color'     : 'black',
+			# 		'text-align': 'center'
+			# 	}
+			# ),
+			html.Div(
+				[
+				    html.Img(
+					    id='camera-img-left-large',
+					    style={
+						    'height': CAM_HEIGHT_LARGE,
+						    'width' : CAM_WIDTH_LARGE
+					    }
+				    ),
+					html.Img(
+						id='camera-img-right-large',
+						style={
+							'height': CAM_HEIGHT_LARGE,
+							'width' : CAM_WIDTH_LARGE
+						}
+					),
+					html.Div(
+						[
+							html.Img(
+								id='camera-pri-left-large',
+								style={
+									'height'  : CAM_HEIGHT_LARGE,
+									'width'   : CAM_WIDTH_LARGE,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+							html.Img(
+								id='camera-pri-right-large',
+								style={
+									'height'  : CAM_HEIGHT_LARGE,
+									'width'   : CAM_WIDTH_LARGE,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+						],
+						style={
+							'float': 'left',
+							'position': 'absolute',
+							'left': '0px',
+							'top': '0px',
+							'z-index': '2'
+						}
+					)
+				],
+				# Necessary for attention image to overlay vision
+				style={'position': 'relative'}
+			),
+		],
 	),
-	'cameras_large': dcc.Graph(
-		id='camera-graph-large',
-		config={'displayModeBar': False},
-		style={'width': '100%'}
+
+
+	# (!) TODO: Design visual attention graph layout here
+	'cameras': dbc.CardBody(
+		[
+			html.H6(
+				'Aural',
+				className='card-subtitle',
+		        style={
+			        'color'     : 'black',
+			        'text-align': 'center'
+		        }
+	        ),
+			html.Img(
+				id='audio-pri-wide',
+				style={
+					'height': PRIW_HEIGHT,
+					'width' : PRIW_WIDTH,
+				}
+			),
+			html.P(''),
+			html.H6(
+				'Visual',
+				className='card-subtitle',
+				style={
+					'color'     : 'black',
+					'text-align': 'center'
+				}
+			),
+			html.Div(
+				[
+				    html.Img(
+					    id='camera-img-left',
+					    style={
+						    'height': CAM_HEIGHT,
+						    'width' : CAM_WIDTH
+					    }
+				    ),
+					html.Img(
+						id='camera-img-right',
+						style={
+							'height': CAM_HEIGHT,
+							'width' : CAM_WIDTH
+						}
+					),
+					html.Div(
+						[
+							html.Img(
+								id='camera-pri-left',
+								style={
+									'height'  : CAM_HEIGHT,
+									'width'   : CAM_WIDTH,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+							html.Img(
+								id='camera-pri-right',
+								style={
+									'height'  : CAM_HEIGHT,
+									'width'   : CAM_WIDTH,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+						],
+						style={
+							'float': 'left',
+							'position': 'absolute',
+							'left': '0px',
+							'top': '0px',
+							'z-index': '2'
+						}
+					)
+				],
+				# Necessary for attention image to overlay vision
+				style={'position': 'relative'}
+			),
+		],
 	),
+
+
+	# 	html.Div([
+	# 	html.H6('Audio', style={'color': 'black'}),
+	# 	html.Div('test', style={'color': 'black', 'align': 'right', 'width': '1000px'}),
+	# 	html.Img(id='audio-pri-wide'),
+	# 	html.H6('Cameras', style={'color': 'black'}),
+	#     html.Img(id='camera-img-left'),
+	# 	html.Img(id='camera-img-right'),
+	# 	html.Img(id='camera-pri-left'),
+	# 	html.Img(id='camera-pri-right'),
+	# ]),
 	'circadian': dcc.Graph(
 		id='circadian-graph',
 		# 'Animate' property is incompatible with changing background images
@@ -274,6 +455,24 @@ dashboard_graphs = {
 		config={'displayModeBar': False},
 		style={
 			'height': '100%',
+			'width' : '100%',
+		}
+	),
+	'motivation': dcc.Graph(
+		id='motivation-graph',
+		config={'displayModeBar': False},
+		style={
+			'height': '250px',
+			'width': '100%'
+		}
+	),
+	'motivation_large': dcc.Graph(
+		id='motivation-graph-large',
+		# 'Animate' property is incompatible with changing images
+		# animate=True,
+		config={'displayModeBar': False},
+		style={
+			'height': '500px',
 			'width' : '100%',
 		}
 	),
@@ -290,15 +489,16 @@ dashboard_graphs = {
 }
 
 dashboard_intervals = html.Div([
+	# TODO: Possibly combine fast and medium intervals into single interval timer
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
-		interval=0.5 * 1000,    # Every half-second
+		interval=0.1 * 1000,    # Every tenth of a second
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		interval=1 * 1000,      # Every second
+		interval=0.2 * 1000,    # Every fifth of a second
 		n_intervals=0
 	),
 	dcc.Interval(
@@ -307,6 +507,275 @@ dashboard_intervals = html.Div([
 		n_intervals=0
 	)
 ])
+
+dashboard_layouts = {
+	# Action selection
+	# TODO: Extract this list automatically
+	'action_list': [
+		'Mull',
+		'Orient',
+		'Approach',
+		'Flee',
+		'Avert',
+		'Halt',
+		'Retreat',
+		'Special'
+	],
+	'action_layout': go.Layout(
+		bargap=0.1,
+		barmode='overlay',
+		margin={
+			'b': 40,
+			'l': 60,
+			'r': 0,
+			't': 0
+		},
+		xaxis={
+			'fixedrange': True,
+			'range'     : [-1, 1],
+			'ticktext'  : [1, 0.5, 0, 0.5, 1],
+			'tickvals'  : [-1, -0.5, 0, 0.5, 1],
+			'title'     : 'Salience'
+		},
+		yaxis={
+			'fixedrange'   : True,
+			'tickfont.size': 11
+		}
+	),
+
+	# Affect
+	'affect_layout': go.Layout(
+		legend={
+			'orientation': 'h',
+			'x'          : 0.5,
+			'xanchor'    : 'center',
+			'y'          : 1.01,
+			'yanchor'    : 'bottom',
+		},
+		margin={
+			'b': 30,
+			'l': 20,
+			'r': 5,
+			't': 0
+		},
+		showlegend=True,
+		xaxis={
+			'fixedrange'    : True,
+			'linewidth'     : 0.5,
+			'mirror'        : True,
+			'range'         : [0, 1],
+			'showgrid'      : False,
+			'showticklabels': False,
+			'title'         : 'Valence',
+			'zeroline'      : False,
+		},
+		yaxis={
+			'fixedrange'    : True,
+			'linewidth'     : 0.5,
+			'mirror'        : True,
+			'range'         : [0, 1],
+			'showgrid'      : False,
+			'showticklabels': False,
+			'title'         : 'Arousal',
+			'zeroline'      : False,
+		},
+	),
+
+	# Motivation
+	'motivation_layout': go.Layout(
+		legend={
+			# 'font'       : {
+			# 	'size': 3
+			# },
+			'orientation': 'h',
+			'x'          : 1,
+			'xanchor'    : 'right',
+			'y'          : 1,
+			'yanchor'    : 'bottom',
+		},
+		margin={
+			'b': 20,
+			'l': 20,
+			'r': 0,
+			't': 0
+		},
+		# showlegend=True,
+		xaxis={
+			'fixedrange'    : True,
+			'range'         : [0, MOTIVATION_LENGTH],
+			'showgrid'      : False,
+			'showticklabels': False,
+			'title'         : 'Time',
+			'zeroline'      : True
+		},
+		yaxis={
+			'fixedrange'    : True,
+			'range'         : [0, 1],
+			'showgrid'      : False,
+			'showticklabels': False,
+			'title'         : 'Energy',
+			'zeroline'      : True
+		}
+	),
+
+	# Aural
+	'aural_layout': go.Layout(
+		height=PRIW_HEIGHT,
+		margin={
+			'b': 0,
+			'l': 0,
+			'r': 0,
+			't': 30
+		},
+		shapes=[
+			{
+				'line': {
+					'color': 'silver',
+					'dash' : 'dot',
+					'width': 1,
+				},
+				'type': 'line',
+				'x0'  : 0.5,
+				'x1'  : 0.5,
+				'xref': 'paper',
+				'y0'  : 0,
+				'y1'  : 1,
+				'yref': 'paper'
+			}
+		],
+		# images=priw_image,
+		title={
+			'pad': {
+				'b': 10,
+				'l': 0,
+				'r': 0,
+				't': 0
+			},
+			'text'   : 'Aural',
+			'yanchor': 'bottom',
+			'y'      : 1,
+			'yref'   : 'paper'
+		},
+		xaxis={
+			'fixedrange': True,
+			'visible'   : False
+		},
+		yaxis={
+			'fixedrange': True,
+			'visible'   : False
+		}
+	),
+
+	# Vision
+	'camera_layout': go.Layout(
+		height=CAM_HEIGHT,
+		# images=cam_images,
+		margin={
+			'b': 10,
+			'l': 0,
+			'r': 0,
+			't': 60
+		},
+		shapes=[{
+			'line': {
+				'color': 'black',
+				'dash' : 'dot',
+				'width': 1,
+			},
+			'type': 'line',
+			'x0'  : 0.5,
+			'x1'  : 0.5,
+			'xref': 'paper',
+			'y0'  : 0,
+			'y1'  : 1,
+			'yref': 'paper'
+		}],
+		title={
+			'pad'    : {
+				'b': 10,
+				'l': 0,
+				'r': 0,
+				't': 0
+			},
+			'text'   : 'Visual',
+			'yanchor': 'bottom',
+			'y'      : 1,
+			'yref'   : 'paper'
+		},
+		xaxis={
+			'fixedrange': True,
+			'visible'   : False
+		},
+		yaxis={
+			'fixedrange': True,
+			'visible'   : False
+		}
+	),
+
+	# Camera images
+	'caml_image': {
+		'layer'  : 'below',
+		'opacity': 1,
+		'sizing' : 'contain',
+		'sizex'  : 0.5,
+		'sizey'  : 1,       # Overridden by 'constrain' property but must still be set
+		# 'source' : caml,
+		'x'      : 0,
+		'xanchor': 'left',
+		'xref'   : 'paper',
+		'y'      : 0,
+		'yanchor': 'bottom',
+		'yref'   : 'paper',
+	},
+	'camr_image': {
+		'layer'  : 'below',
+		'opacity': 1,
+		'sizing' : 'contain',
+		'sizex'  : 0.5,
+		'sizey'  : 1,
+		# 'source' : camr,
+		'x'      : 1,
+		'xanchor': 'right',
+		'xref'   : 'paper',
+		'y'      : 0,
+		'yanchor': 'bottom',
+		'yref'   : 'paper',
+	},
+	'pril_image': {
+		'layer'  : 'above',
+		'opacity': 0.5,
+		'sizing' : 'contain',
+		'sizex'  : 0.5,
+		'sizey'  : 1,
+		# 'source' : pril,
+		'x'      : 0,
+		'xanchor': 'left',
+		'xref'   : 'paper',
+		'y'      : 0,
+		'yanchor': 'bottom',
+		'yref'   : 'paper',
+	},
+	'prir_image': {
+		'layer'  : 'above',
+		'opacity': 0.5,
+		'sizing' : 'contain',
+		'sizex'  : 0.5,
+		'sizey'  : 1,
+		# 'source' : prir,
+		'x'      : 1,
+		'xanchor': 'right',
+		'xref'   : 'paper',
+		'y'      : 0,
+		'yanchor': 'bottom',
+		'yref'   : 'paper',
+	}
+}
+
+# Add modified layouts
+# # go.Layout creates a specific type of dict that can't be copied using dict()
+dashboard_layouts['sleep_layout'] = go.Layout(dashboard_layouts['affect_layout'])
+dashboard_layouts['sleep_layout']['xaxis']['title'] = 'Wakefulness'
+dashboard_layouts['sleep_layout']['yaxis']['title'] = 'Pressure'
 
 dashboard_tools = {
 	# TODO: Add a callback so the status of both toggles is synchronised
@@ -339,6 +808,13 @@ dashboard_tools = {
 	'circadian_button': dbc.Button(
 		'＋',
 		id='circadian-modal-open',
+		color='light',
+		size='sm',
+		style={'float': 'right'}
+	),
+	'motivation_button': dbc.Button(
+		'＋',
+		id='motivation-modal-open',
 		color='light',
 		size='sm',
 		style={'float': 'right'}
@@ -536,9 +1012,71 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
+	'motivation_graph' : dbc.Tab(dashboard_graphs['motivation_large'], label='Live data'),
+	'motivation_info': dbc.Tab(
+		[
+			dbc.Alert(
+				'Animal behaviour is motivated by intrinsic and extrinsic drives, such as the need to keep warm or to '
+				'eat. These drives may often be in conflict, and yet an animal must satisfy all its needs to survive.',
+				color='info',
+				className='mt-2'
+			),
+			dbc.CardDeck([
+				dbc.Card(
+					[
+						dbc.CardHeader('Mammals', className='font-weight-bold'),
+						dbc.CardBody([
+							dcc.Markdown(
+								'The **hypothalamus** is a small structure at the base of the brain responsible for '
+								'regulating and co-ordinating many of the basic functions necessary for life, such as '
+								'fluid and electrolyte balance, thermoregulation, the sleep-wake cycle, and stress '
+								'response. It is responsible for maintaining a stable bodily state (homeostasis), as '
+								'well as responding to the external environment in certain situations (such as the '
+								'presence of a predator or mate).'
+							),
+							dcc.Markdown(
+								'To exert control over many bodily functions, the hypothalamus regulates endocrine, '
+								'autonomic, and behavioural functions through the release of hormones as well as '
+								'direct neural projections.'
+							)
+						]),
+						dbc.CardFooter(
+							html.A(
+								dbc.Button('More information', color='success'),
+								href='http://www.scholarpedia.org/article/Hypothalamus',
+								target='_blank'
+							)
+						)
+					],
+					className='shadow-sm'
+				),
+				dbc.Card(
+					[
+						dbc.CardHeader('MiRo', className='font-weight-bold'),
+						dbc.CardBody([
+							dcc.Markdown(
+								'MiRo has a far simpler motivational system consisting of \'drives\' that increase in '
+								'proportion to the divergence of certain sensory information from predefined setpoints. '
+								'For example, the position on a simulated \'thermal gradient\' or the amount of time '
+								'passed since interacting with a human. '
+							),
+							dcc.Markdown(
+								'MiRo has no endocrine or autonomic systems, and so his motivational system influences '
+								'his behaviour only by modifying the attentional salience of environmental features. '
+								'This changes how likely he is to pay attention to (i.e. orient towards and approach) '
+								'particular aspects of his environment.'
+							)
+						])
+					],
+					className='shadow-sm'
+				),
+			])
+		],
+		label='Information'
+	),
 	'spatial_graph': dbc.Tab(
 		[
-			dashboard_graphs['aural_large'],
+			# dashboard_graphs['aural_large'],
 			dashboard_graphs['cameras_large'],
 			dashboard_tools['cam_toggle_large'],
 			# dashboard_alerts['ball_large'],
@@ -674,6 +1212,28 @@ dashboard_modals = html.Div([
 	),
 	dbc.Modal(
 		[
+			dbc.ModalHeader('Motivation'),
+			dbc.ModalBody(
+				dbc.Tabs([
+					dashboard_tabs['motivation_graph'],
+					dashboard_tabs['motivation_info']
+				])
+			),
+			dbc.ModalFooter(
+				dbc.Button(
+					'Close',
+					id='motivation-modal-close',
+					color='danger',
+					className='ml-auto'
+				)
+			),
+		],
+		id='motivation-modal',
+		centered=True,
+		size='xl'
+	),
+	dbc.Modal(
+		[
 			dbc.ModalHeader('Spatial attention'),
 			dbc.ModalBody(
 				dbc.Tabs([
@@ -725,10 +1285,10 @@ dashboard_tooltips = html.Div([
 	),
 
 	# Row 4
-	dbc.Tooltip(
-		'Perception',
-		target='tooltip-environment-filter',
-	),
+	# dbc.Tooltip(
+	# 	'Perception',
+	# 	target='tooltip-environment-filter',
+	# ),
 	dbc.Tooltip(
 		'Spatial bias and inhibition of return',
 		target='tooltip-top-spatial',
@@ -771,7 +1331,7 @@ dashboard_tooltips = html.Div([
 ])
 
 ##########
-# Define dashboard rows
+# Dashboard content
 dashboard_rows = {
 	# TOP
 	'Row_top': dbc.Row(
@@ -788,6 +1348,7 @@ dashboard_rows = {
 	# Row 1
 	'Row_1': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -799,6 +1360,8 @@ dashboard_rows = {
 					'offset': 3
 				},
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -806,6 +1369,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -816,6 +1381,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -826,6 +1393,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -840,6 +1409,7 @@ dashboard_rows = {
 	# Row 2
 	'Row_2': dbc.Row(
 		[
+			# Column 1-3
 			dbc.Col(
 				dashboard_alerts['intro'],
 				width={
@@ -847,6 +1417,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 4
 			dbc.Col(
 				[
 					dbc.Card(
@@ -860,6 +1432,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -871,6 +1445,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6-10
 			dbc.Col(
 				dbc.Card(
 					[
@@ -892,6 +1468,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -906,6 +1484,7 @@ dashboard_rows = {
 	# Row 3
 	'Row_3': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -913,6 +1492,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -920,6 +1501,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -931,6 +1514,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -942,6 +1527,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -953,6 +1540,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -971,38 +1560,39 @@ dashboard_rows = {
 	# Row 4
 	'Row_4': dbc.Row(
 		[
+			# Column 1
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader('Environment'),
-						dbc.CardImg(
-							src=ASSET_PATH + 'icon_park.png',
-							bottom=True
-						)
-					],
-					color='light',
-					className='ml-1',
-				),
+				[
+					html.Div('ENVIRONMENT', style=css['bar_left']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right'],),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right']),
+				],
+				# dbc.Card(
+				# 	[
+				# 		dbc.CardHeader('Environment'),
+				# 		dbc.CardImg(
+				# 			src=ASSET_PATH + 'icon_park.png',
+				# 			bottom=True
+				# 		)
+				# 	],
+				# 	color='light',
+				# 	className='ml-1',
+				# ),
 				width={
 					'size'  : 1,
 					'offset': 0
 				}
 			),
-			dbc.Col(
-				[
-					html.Div(style=css['line_horizontal_clear']),
-					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(
-						style=css['arrow_right'],
-						id='tooltip-environment-filter'
-					)
-				],
-				width={
-					'size'  : 1,
-					'offset': 0
-				},
-			),
+
+			# Column 2-3
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1014,15 +1604,46 @@ dashboard_rows = {
 							),
 						],
 						color='light'
-					)
+					),
+					html.Div(style=css['line_horizontal_clear']),
+					dbc.Card(
+						[
+							dbc.CardHeader(
+								[
+									'Motivation',
+									dashboard_tools['motivation_button']
+								],
+								className='bg-danger font-weight-bold lead'
+							),
+							dbc.CardBody(dashboard_graphs['motivation']),
+							dbc.CardFooter(
+								'➡ Internal drives',
+								style={
+									'color'    : 'black',
+									'font-size': 'x-small'
+								}
+							),
+						],
+						color='danger',
+						inverse=True,
+						outline=True,
+					),
 				],
 				width={
-					'size'  : 1,
+					'size'  : 2,
 					'offset': 0
 				}
 			),
+
+			# Column 4
 			dbc.Col(
 				[
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal']),
@@ -1034,11 +1655,19 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 5
 			dbc.Col(
 				html.Div(
 					[
 						html.Div(style=css['line_horizontal_clear_left']),
 						html.Div(style=css['line_horizontal']),
+						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal']),
+						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal_clear']),
+						html.Div(style=css['arrow_right_clear']),
+						html.Div(style=css['line_horizontal_clear']),
 						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_horizontal']),
 						html.Div(style=css['arrow_right_clear']),
@@ -1050,6 +1679,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1059,6 +1690,12 @@ dashboard_rows = {
 					),
 					html.Div(style=css['line_horizontal']),
 					html.Div(style=css['arrow_right']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal_clear']),
+					html.Div(style=css['arrow_right_clear']),
+					html.Div(style=css['line_horizontal']),
+					html.Div(style=css['arrow_right']),
 					html.Div(style=css['line_vertical']),
 				],
 				width={
@@ -1066,6 +1703,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 7-9
 			dbc.Col(
 				dbc.Card(
 					[
@@ -1076,14 +1715,15 @@ dashboard_rows = {
 							],
 							className='bg-success font-weight-bold lead'
 						),
-						dbc.CardBody(
-							[
-								dashboard_graphs['aural'],
+						# dbc.CardBody(
+						# 	[
+								# dashboard_graphs['aural'],
+								# dashboard_graphs['cameras'],
 								dashboard_graphs['cameras'],
 								# dashboard_alerts['ball'],
 								# dashboard_alerts['face'],
-							]
-						),
+						# 	]
+						# ),
 						# TODO: Remove camera toggle from small mode to reduce vertical space
 						dbc.CardFooter(dashboard_tools['cam_toggle'])
 					],
@@ -1098,6 +1738,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 10-12
 			dbc.Col(
 				dbc.Card(
 					[
@@ -1128,6 +1770,7 @@ dashboard_rows = {
 	# Row 5
 	'Row_5': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1135,6 +1778,8 @@ dashboard_rows = {
 					'offset': 3
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1142,6 +1787,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1153,6 +1800,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1164,6 +1813,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 11
 			dbc.Col(
 				[
 					html.Div(style=css['arrow_up']),
@@ -1175,6 +1826,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1192,6 +1845,7 @@ dashboard_rows = {
 	# Row 6
 	'Row_6': dbc.Row(
 		[
+			# Column 4
 			dbc.Col(
 				html.Div(
 					[
@@ -1205,6 +1859,8 @@ dashboard_rows = {
 					'offset': 3
 				},
 			),
+
+			# Column 5
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1215,6 +1871,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1235,6 +1893,8 @@ dashboard_rows = {
 				},
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 7
 			dbc.Col(
 				[
 					html.Div(style=css['line_horizontal']),
@@ -1246,6 +1906,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1265,6 +1927,8 @@ dashboard_rows = {
 				# Necessary to keep stretched arrows hidden
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1297,6 +1961,8 @@ dashboard_rows = {
 				# Necessary to keep stretched arrows hidden
 				style={'overflow': 'hidden'}
 			),
+
+			# Column 11
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1304,6 +1970,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					dbc.Card(
@@ -1381,6 +2049,7 @@ dashboard_rows = {
 	# Row 7
 	'Row_7': dbc.Row(
 		[
+			# Column 1-3
 			dbc.Col(
 				dashboard_alerts['connections'],
 				width={
@@ -1388,6 +2057,8 @@ dashboard_rows = {
 					'offset': 0
 				},
 			),
+
+			# Column 6
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1399,6 +2070,8 @@ dashboard_rows = {
 					'offset': 2
 				}
 			),
+
+			# Column 8
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1406,6 +2079,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 10
 			dbc.Col(
 				[
 					# html.Div(style=css['arrow_up']),
@@ -1417,6 +2092,8 @@ dashboard_rows = {
 					'offset': 1
 				}
 			),
+
+			# Column 11
 			dbc.Col(
 				html.Div(style=css['line_vertical']),
 				width={
@@ -1424,6 +2101,8 @@ dashboard_rows = {
 					'offset': 0
 				}
 			),
+
+			# Column 12
 			dbc.Col(
 				[
 					html.Div(style=css['line_vertical']),
@@ -1452,15 +2131,10 @@ dashboard_rows = {
 }
 
 ##########
-# Define dashboard layout
+# Include everything in the app layout
 # See other included themes: https://bootswatch.com
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
-
 app.title = 'MiRo Dashboard'
-
-# # CSS modification needed to remove corner 'undo' button
-# app.css.append_css({'external_url': ASSET_PATH + 'stylesheet.css'})
-
 app.layout = html.Div([
 	dashboard_rows['Row_top'],
 	dashboard_rows['Row_1'],
@@ -1473,7 +2147,14 @@ app.layout = html.Div([
 	dashboard_rows['Row_btm'],
 	dashboard_modals,
 	dashboard_tooltips,
-	dashboard_intervals
+	dashboard_intervals,
+	dcc.Store(
+		id='motivation_memory',
+		data={
+			'social': [],
+			'ball'  : [],
+		}
+	),   # https://community.plot.ly/t/announcing-the-storage-component/13758
 ])
 
 
@@ -1490,11 +2171,15 @@ app.layout = html.Div([
 		Output('action-graph-large', 'figure'),
 		Output('affect-graph', 'figure'),
 		Output('affect-graph-large', 'figure'),
-		Output('sleep-graph-large', 'figure')
+		Output('sleep-graph-large', 'figure'),
+		Output('motivation-graph', 'figure'),
+		Output('motivation-graph-large', 'figure'),
+		Output('motivation_memory', 'data')
 	],
-	[Input('interval-fast', 'n_intervals')]
+	[Input('interval-fast', 'n_intervals')],
+	[State('motivation_memory', 'data')]
 )
-def callback_fast(_):
+def callback_fast(_, data):
 	# Initialise output data dictionary
 	output = {}
 
@@ -1517,59 +2202,25 @@ def callback_fast(_):
 	# 		output['face-alert'] = False
 	# 		output['face-alert-large'] = False
 
-	# Action graph
-	if (miro_ros_data.selection_priority is not None) and (miro_ros_data.selection_inhibition is not None):
-		action_inhibition = np.array(miro_ros_data.selection_inhibition.data)
+	# Action selection
+	if (miro_core.selection_priority is not None) and (miro_core.selection_inhibition is not None):
+		action_inhibition = np.array(miro_core.selection_inhibition.data)
 		# Priority is made negative so it appears to the left of the bar chart
-		action_priority = np.array([-x for x in miro_ros_data.selection_priority.data])
+		action_priority = np.array([-x for x in miro_core.selection_priority.data])
 	else:
 		action_inhibition = [0]
 		action_priority = [0]
-
-	# TODO: Extract this list automatically
-	action_list = [
-		'Mull',
-		'Orient',
-		'Approach',
-		'Flee',
-		'Avert',
-		'Halt',
-		'Retreat',
-		'Special'
-	]
-
-	action_layout = go.Layout(
-		bargap=0.1,
-		barmode='overlay',
-		margin={
-			'b': 40,
-			'l': 60,
-			'r': 0,
-			't': 0
-		},
-		xaxis={
-			'fixedrange': True,
-			'range'     : [-1, 1],
-			'ticktext'  : [1, 0.5, 0, 0.5, 1],
-			'tickvals'  : [-1, -0.5, 0, 0.5, 1],
-			'title'     : 'Salience'
-		},
-		yaxis={
-			'fixedrange'    : True,
-			'tickfont.size' : 11
-		}
-	)
 
 	action_data = [
 		go.Bar(
 			hoverinfo='text+y',
 			# Format input label to three decimal places
-			hovertext=np.round(-action_priority, decimals=3),
+			# hovertext=np.round(-action_priority, decimals=3),
 			marker={'color': '#F39C12'},    # Match header colour
 			name='Input',
 			orientation='h',
 			x=action_priority,
-			y=action_list,
+			y=dashboard_layouts['action_list']
 		),
 		go.Bar(
 			hoverinfo='none',
@@ -1577,63 +2228,21 @@ def callback_fast(_):
 			name='Output',
 			orientation='h',
 			x=action_inhibition,
-			y=action_list,
+			y=dashboard_layouts['action_list'],
 		)
 	]
 
 	output['action-graph'] = {
 		'data'  : action_data,
-		'layout': action_layout
+		'layout': dashboard_layouts['action_layout']
 	}
 	output['action-graph-large'] = {
 		'data'  : action_data,
-		'layout': action_layout
+		'layout': dashboard_layouts['action_layout']
 	}
 
-	# Affect graphs
-	# Affect axes are the same irrespective of data
-	affect_xaxis = {
-		'fixedrange'    : True,
-		'linewidth'     : 0.5,
-		'mirror'        : True,
-		'range'         : [0, 1],
-		'showgrid'      : False,
-		'showticklabels': False,
-		'title'         : 'Valence',
-		'zeroline'      : False,
-	}
-
-	affect_yaxis = {
-		'fixedrange'    : True,
-		'linewidth'     : 0.5,
-		'mirror'        : True,
-		'range'         : [0, 1],
-		'showgrid'      : False,
-		'showticklabels': False,
-		'title'         : 'Arousal',
-		'zeroline'      : False,
-	}
-
-	# Minor changes for sleep graph
-	sleep_xaxis = affect_xaxis.copy()
-	sleep_yaxis = affect_yaxis.copy()
-	sleep_xaxis['title'] = 'Wakefulness'
-	sleep_yaxis['title'] = 'Pressure'
-
-	# Layout margins are slightly different without data
-	affect_layout_null = go.Layout(
-		margin={
-			'b': 30,
-			'l': 20,
-			'r': 5,
-			't': 0
-		},
-		xaxis=affect_xaxis,
-		yaxis=affect_yaxis
-	)
-
-	# Update affect
-	affect_input = miro_ros_data.core_affect
+	# Affect
+	affect_input = miro_core.affect
 	if affect_input is not None:
 		affect_data = {
 			'emotion': go.Scatter(
@@ -1695,43 +2304,22 @@ def callback_fast(_):
 			if x < affect_data['sleep'].x <= x + 0.25:
 				sleep_face = sleep_faces['{0:.2f}'.format(x)]
 
-		# Layout includes background face image and graph legend
-		affect_layout = go.Layout(
-			images=[{
-				'layer'  : 'below',
-				'opacity': 0.8,
-				'sizing' : 'contain',
-				'sizex'  : 0.3,
-				'sizey'  : 0.3,
-				'source' : affect_face,
-				'x'      : 0.5,
-				'y'      : 0.5,
-				'xanchor': 'center',
-				'yanchor': 'middle'
-			}],
-			legend={
-				'orientation': 'h',
-				'x'          : 0.5,
-				'xanchor'    : 'center',
-				'y'          : 1.01,
-				'yanchor'    : 'bottom',
-			},
-			margin={
-				'b': 30,
-				'l': 20,
-				'r': 5,
-				't': 0
-			},
-			showlegend=True,
-			xaxis=affect_xaxis,
-			yaxis=affect_yaxis
-		)
+		# Update faces
+		dashboard_layouts['affect_layout']['images'] = [{
+			'layer'  : 'below',
+			'opacity': 0.8,
+			'sizing' : 'contain',
+			'sizex'  : 0.3,
+			'sizey'  : 0.3,
+			'source' : affect_face,
+			'x'      : 0.5,
+			'y'      : 0.5,
+			'xanchor': 'center',
+			'yanchor': 'middle'
+		}]
 
-		sleep_layout = go.Layout(affect_layout)
-		sleep_layout['xaxis'] = sleep_xaxis
-		sleep_layout['yaxis'] = sleep_yaxis
 		# TODO: If possible, just modify the 'source' attribute
-		sleep_layout['images'] = [{
+		dashboard_layouts['sleep_layout']['images'] = [{
 			'layer'  : 'below',
 			'opacity': 0.8,
 			'sizing' : 'contain',
@@ -1750,7 +2338,7 @@ def callback_fast(_):
 				affect_data['mood'],
 				affect_data['sleep']
 			],
-			'layout': affect_layout
+			'layout': dashboard_layouts['affect_layout']
 		}
 
 		affect_figure_large = {
@@ -1758,12 +2346,12 @@ def callback_fast(_):
 				affect_data['emotion'],
 				affect_data['mood'],
 			],
-			'layout': affect_layout
+			'layout': dashboard_layouts['affect_layout']
 		}
 
 		sleep_figure_large = {
 			'data'  : [affect_data['sleep']],
-			'layout': sleep_layout
+			'layout': dashboard_layouts['sleep_layout']
 		}
 
 		output['affect-graph'] = affect_figure
@@ -1771,9 +2359,75 @@ def callback_fast(_):
 		output['sleep-graph-large'] = sleep_figure_large
 
 	else:
-		output['affect-graph'] = {'layout': affect_layout_null}
-		output['affect-graph-large'] = {'layout': affect_layout_null}
-		output['sleep-graph-large'] = {'layout': affect_layout_null}
+		# TODO: Tidy up layout when no data is present
+		pass
+
+		output['affect-graph'] = {'layout': dashboard_layouts['affect_layout']}
+		output['affect-graph-large'] = {'layout': dashboard_layouts['affect_layout']}
+		output['sleep-graph-large'] = {'layout': dashboard_layouts['affect_layout']}
+
+	# Motivation
+	motivation_input = data
+	if miro_core.motivation is not None:
+		motivation_input['social'].append(miro_core.motivation.data[0])
+		motivation_input['ball'].append(miro_core.motivation.data[1])
+
+		# Trim data to plot length
+		if len(motivation_input['social']) >= MOTIVATION_LENGTH:
+			motivation_input['social'].pop(0)
+			motivation_input['ball'].pop(0)
+
+		motivation_data = {
+			'social': go.Scatter(
+				hoverinfo='none',
+				marker={
+					'color': 'steelblue',
+					'size' : 15,
+					'line' : {'width': 0.5}
+				},
+				mode='lines',
+				name='Social',
+				opacity=0.7,
+				x=np.arange(0, MOTIVATION_LENGTH, 1),
+				y=np.array(motivation_input['social']),
+			),
+			'ball'  : go.Scatter(
+				hoverinfo='none',
+				marker={
+					'color': 'mediumseagreen',
+					'size' : 15,
+					'line' : {'width': 0.5}
+				},
+				mode='lines',
+				name='Ball',
+				opacity=0.7,
+				x=np.arange(0, MOTIVATION_LENGTH, 1),
+				y=np.array(motivation_input['ball']),
+			),
+		}
+
+		motivation_figure = {
+			'data'  : [
+				motivation_data['social'],
+				motivation_data['ball'],
+			],
+			'layout': dashboard_graphs['motivation_layout']
+		}
+
+		motivation_figure_large = {
+			'data'  : [
+				motivation_data['social'],
+				motivation_data['ball'],
+			],
+			'layout': dashboard_graphs['motivation_layout']
+		}
+
+		output['motivation-graph'] = motivation_figure
+		output['motivation-graph-large'] = motivation_figure_large
+
+	else:
+		output['motivation-graph'] = {'layout': dashboard_layouts['motivation_layout']}
+		output['motivation-graph-large'] = {'layout': dashboard_layouts['motivation_layout']}
 
 	# Return all outputs
 	return \
@@ -1781,7 +2435,10 @@ def callback_fast(_):
 		output['action-graph-large'], \
 		output['affect-graph'], \
 		output['affect-graph-large'], \
-		output['sleep-graph-large']
+		output['sleep-graph-large'], \
+		output['motivation-graph'], \
+		output['motivation-graph-large'], \
+		motivation_input
 		# FIXME: Alerts are broken until MRI is updated
 		# output['ball-alert'], \
 		# output['ball-alert-large'], \
@@ -1796,10 +2453,15 @@ def callback_fast(_):
 
 @app.callback(
 	[
-		Output('aural-graph', 'figure'),
-		Output('aural-graph-large', 'figure'),
-		Output('camera-graph', 'figure'),
-		Output('camera-graph-large', 'figure')
+		Output('audio-pri-wide', 'src'),
+		Output('camera-img-left', 'src'),
+		Output('camera-img-right', 'src'),
+		Output('camera-pri-left', 'src'),
+		Output('camera-pri-right', 'src'),
+		Output('camera-img-left-large', 'src'),
+		Output('camera-img-right-large', 'src'),
+		Output('camera-pri-left-large', 'src'),
+		Output('camera-pri-right-large', 'src'),
 	],
 	[
 		Input('interval-medium', 'n_intervals'),
@@ -1808,236 +2470,57 @@ def callback_fast(_):
 	]
 )
 def callback_medium(_, toggle, toggle_large):
-	# Initialise output data dictionary
-	output = {}
+	if miro_perception.caml is not None:
+		caml = miro_perception.caml
+		camr = miro_perception.camr
+		pril = miro_perception.pril
+		prir = miro_perception.prir
+		priw = miro_perception.priw
 
-	# Aural graph
-	priw = miro_ros_data.core_priw
+		caml_image = process_frame(caml, CAM_SCALE)
+		camr_image = process_frame(camr, CAM_SCALE)
 
-	# Needs to be updated manually if plot width changes; value includes margins
-	p_height = 60
-	p_height_large = 80
-
-	# Set image properties
-	if priw is not None:
-		priw_image = [{
-			'layer'  : 'below',
-			'opacity': 1,
-			'sizing' : 'stretch',
-			'sizex'  : 1,
-			'sizey'  : 1,
-			'source' : priw,
-			'x'      : 0,
-			'y'      : 0,
-			'xref'   : 'paper',
-			'yref'   : 'paper',
-			'yanchor': 'bottom'
-		}]
-	else:
-		priw_image = []
-
-	aural_layout = go.Layout(
-		height=p_height,
-		margin={
-			'b': 0,
-			'l': 0,
-			'r': 0,
-			't': 30
-		},
-		shapes=[
-			{
-				'line': {
-					'color': 'silver',
-					'dash' : 'dot',
-					'width': 1,
-				},
-				'type': 'line',
-				'x0'  : 0.5,
-				'x1'  : 0.5,
-				'xref': 'paper',
-				'y0'  : 0,
-				'y1'  : 1,
-				'yref': 'paper'
-			}
-		],
-		images=priw_image,
-		title={
-			'pad': {
-				'b': 10,
-				'l': 0,
-				'r': 0,
-				't': 0
-			},
-			'text'   : 'Aural',
-			'yanchor': 'bottom',
-			'y'      : 1,
-			'yref'   : 'paper'
-		},
-		xaxis={
-			'fixedrange': True,
-			'visible'   : False
-		},
-		yaxis={
-			'fixedrange': True,
-			'visible'   : False
-		}
-	)
-
-	# go.Layout creates a specific type of dict that can't be copied using dict()
-	aural_layout_large = go.Layout(aural_layout)
-	aural_layout_large['height'] = p_height_large
-
-	output['aural-graph'] = {'layout': aural_layout}
-	output['aural-graph-large'] = {'layout': aural_layout_large}
-
-	# Camera graphs
-	# Get camera data
-	caml = miro_ros_data.sensors_caml
-	camr = miro_ros_data.sensors_camr
-
-	pril = miro_ros_data.core_pril
-	prir = miro_ros_data.core_prir
-
-	# Needs to be updated manually if plot width changes; value includes margins
-	cam_height = 190
-	cam_height_large = 380
-
-	# Set camera image properties
-	caml_image = {
-		'layer'  : 'below',
-		'opacity': 1,
-		'sizing' : 'contain',
-		'sizex'  : 0.5,
-		'sizey'  : 1,       # Overridden by 'constrain' property but must still be set
-		'source' : caml,
-		'x'      : 0,
-		'xanchor': 'left',
-		'xref'   : 'paper',
-		'y'      : 0,
-		'yanchor': 'bottom',
-		'yref'   : 'paper',
-	}
-
-	camr_image = {
-		'layer'  : 'below',
-		'opacity': 1,
-		'sizing' : 'contain',
-		'sizex'  : 0.5,
-		'sizey'  : 1,
-		'source' : camr,
-		'x'      : 1,
-		'xanchor': 'right',
-		'xref'   : 'paper',
-		'y'      : 0,
-		'yanchor': 'bottom',
-		'yref'   : 'paper',
-	}
-
-	pril_image = {
-		'layer'  : 'above',
-		'opacity': 0.5,
-		'sizing' : 'contain',
-		'sizex'  : 0.5,
-		'sizey'  : 1,
-		'source' : pril,
-		'x'      : 0,
-		'xanchor': 'left',
-		'xref'   : 'paper',
-		'y'      : 0,
-		'yanchor': 'bottom',
-		'yref'   : 'paper',
-	}
-
-	prir_image = {
-		'layer'  : 'above',
-		'opacity': 0.5,
-		'sizing' : 'contain',
-		'sizex'  : 0.5,
-		'sizey'  : 1,
-		'source' : prir,
-		'x'      : 1,
-		'xanchor': 'right',
-		'xref'   : 'paper',
-		'y'      : 0,
-		'yanchor': 'bottom',
-		'yref'   : 'paper',
-	}
-
-	# Show vision with attention overlay, vision alone, or nothing
-	if (caml is not None) and (camr is not None):
-		if toggle or toggle_large:
-			cam_images = [
-				caml_image,
-				camr_image,
-				pril_image,
-				prir_image
-			]
+		if pril is not None and (toggle or toggle_large):
+			pril_image = process_frame(pril, 1)
+			prir_image = process_frame(prir, 1)
 		else:
-			cam_images = [
-				caml_image,
-				camr_image
-			]
+			pril_image = None
+			prir_image = None
+
+		if priw is not None:
+			priw_image = process_frame(priw, 1)
+		else:
+			priw_image = ASSET_PATH + 'test_priw.png'
+
 	else:
-		cam_images = []
-
-	camera_layout = go.Layout(
-		height=cam_height,
-		images=cam_images,
-		margin={
-			'b': 10,
-			'l': 0,
-			'r': 0,
-			't': 60
-		},
-		shapes=[{
-			'line': {
-				'color': 'black',
-				'dash' : 'dot',
-				'width': 1,
-			},
-			'type': 'line',
-			'x0'  : 0.5,
-			'x1'  : 0.5,
-			'xref': 'paper',
-			'y0'  : 0,
-			'y1'  : 1,
-			'yref': 'paper'
-		}],
-		title={
-			'pad'    : {
-				'b': 10,
-				'l': 0,
-				'r': 0,
-				't': 0
-			},
-			'text'   : 'Visual',
-			'yanchor': 'bottom',
-			'y'      : 1,
-			'yref'   : 'paper'
-		},
-		xaxis={
-			'fixedrange': True,
-			'visible'   : False
-		},
-		yaxis={
-			'fixedrange': True,
-			'visible'   : False
-		}
-	)
-
-	# go.Layout creates a specific type of dict that can't be copied using dict()
-	camera_layout_large = go.Layout(camera_layout)
-	camera_layout_large['height'] = cam_height_large
-
-	output['camera-graph'] = {'layout': camera_layout}
-	output['camera-graph-large'] = {'layout': camera_layout_large}
+		# Show test patterns
+		caml_image = ASSET_PATH + 'test_cam_sml.png'
+		camr_image = ASSET_PATH + 'test_cam_sml.png'
+		pril_image = None
+		prir_image = None
 
 	# Return all outputs
 	return \
-		output['aural-graph'], \
-		output['aural-graph-large'], \
-		output['camera-graph'], \
-		output['camera-graph-large']
+		priw_image, \
+		caml_image, \
+		camr_image, \
+		pril_image, \
+		prir_image, \
+		caml_image, \
+		camr_image, \
+		pril_image, \
+		prir_image, \
+
+
+# TODO: Make this a function in MRI?
+def process_frame(frame, scale):
+	# Create base64 URI from image: https://stackoverflow.com/questions/16065694/is-it-possible-to-create-encoded-base64-url-from-image-object
+	frame_buffer = BytesIO()
+	frame_sml = frame.resize(tuple(dim / scale for dim in frame.size))
+	frame_sml.save(frame_buffer, format='PNG')
+	frame_b64 = base64.b64encode(frame_buffer.getvalue())
+
+	return 'data:image/png;base64,{}'.format(frame_b64)
 
 
 @app.callback(
@@ -2049,11 +2532,8 @@ def callback_slow(_):
 	output = {}
 
 	# Circadian graph
-	# if miro_ros_data.core_time.data is not None:
-	if miro_ros_data.core_time is not None:
-		# circ_input = miro_ros_data.core_time.data
-		circ_input = miro_ros_data.core_time
-		# print(miro_ros_data.core_time)
+	if miro_core.time is not None:
+		circ_input = miro_core.time
 	else:
 		circ_input = 0
 
@@ -2156,7 +2636,6 @@ def callback_slow(_):
 def modal_action(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2168,7 +2647,6 @@ def modal_action(n1, n2, is_open):
 def modal_affect(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
@@ -2177,10 +2655,20 @@ def modal_affect(n1, n2, is_open):
 	[Input('circadian-modal-open', 'n_clicks'), Input('circadian-modal-close', 'n_clicks')],
 	[State('circadian-modal', 'is_open')]
 )
-def modal_affect(n1, n2, is_open):
+def modal_circadian(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
+	return is_open
 
+
+@app.callback(
+	Output('motivation-modal', 'is_open'),
+	[Input('motivation-modal-open', 'n_clicks'), Input('motivation-modal-close', 'n_clicks')],
+	[State('motivation-modal', 'is_open')]
+)
+def modal_spatial(n1, n2, is_open):
+	if n1 or n2:
+		return not is_open
 	return is_open
 
 
@@ -2192,20 +2680,21 @@ def modal_affect(n1, n2, is_open):
 def modal_spatial(n1, n2, is_open):
 	if n1 or n2:
 		return not is_open
-
 	return is_open
 
 
+##########
+# Main dashboard loop
 if __name__ == '__main__':
-	# Initialise a new ROS node
-	# 'disable_rostime' must be True to work in Pycharm
-	# rospy.init_node("dash_listener", anonymous=True, disable_rostime=True)
-
-	# Initialise MiRo client
-	miro_ros_data = mri.MiroClient()
+	# Initialise MiRo clients
+	miro_core = mri.MiRoCore()
+	miro_perception = mri.MiRoPerception()
 
 	# This is only to suppress warnings TEMPORARILY
 	# app.config['suppress_callback_exceptions'] = True
 
-	# Hot reloading seems to cause "IOError: [Errno 11] Resource temporarily unavailable" errors
-	app.run_server(debug=False)
+	# "debug=False" because hot reloading causes "IOError: [Errno 11] Resource temporarily unavailable" errors
+	# "host='0.0.0.0'" allows connections from non-localhost addresses
+	# I *think* "threaded=True" gives a performance boost to multiple callbacks
+	app.run_server(debug=False, host='0.0.0.0', threaded=True)
+
