@@ -777,13 +777,6 @@ dashboard_layouts['sleep_layout'] = go.Layout(dashboard_layouts['affect_layout']
 dashboard_layouts['sleep_layout']['xaxis']['title'] = 'Wakefulness'
 dashboard_layouts['sleep_layout']['yaxis']['title'] = 'Pressure'
 
-# # TODO: Remove these once new camera plots are made
-# dashboard_layouts['aural_layout_large'] = go.Layout(dashboard_layouts['aural_layout'])
-# dashboard_layouts['aural_layout_large']['height'] = PRIW_HEIGHT_LARGE
-#
-# dashboard_layouts['camera_layout_large'] = go.Layout(dashboard_layouts['camera_layout'])
-# dashboard_layouts['camera_layout_large']['height'] = CAM_HEIGHT_LARGE
-
 dashboard_tools = {
 	# TODO: Add a callback so the status of both toggles is synchronised
 	'cam_toggle': daq.BooleanSwitch(
