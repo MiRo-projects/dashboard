@@ -33,15 +33,18 @@ V_WIDTH = H_WIDTH - (L_BORDER * 2)
 V_HEIGHT = 30
 # Other constants
 ASSET_PATH = 'assets/'
-CAM_HEIGHT = 190
-CAM_HEIGHT_LARGE = 380
-CAM2_SCALE = 4
-PRIW_HEIGHT = 60
-PRIW_HEIGHT_LARGE = 80
+CAM_HEIGHT = 120
+CAM_WIDTH = CAM_HEIGHT * 1.7777
+CAM_HEIGHT_LARGE = 290
+CAM_WIDTH_LARGE = CAM_HEIGHT_LARGE * 1.7777
+CAM_SCALE = 4
+PRI_OPACITY = 0.5
+PRIW_HEIGHT = 30
+PRIW_WIDTH = CAM_WIDTH * 2
 MOTIVATION_LENGTH = 30
 
 # TODO: Make BG plot legible at smaller size
-# TODO: Reduce vertical size of attention, affect plots
+# TODO: Reduce vertical size of affect plots
 # TODO: Reduce vertical size of 'Expression' box
 # TODO: Package into easy-install app bundle
 # TODO: Move processing of ROS data to MRI
@@ -285,24 +288,166 @@ dashboard_graphs = {
 		config={'displayModeBar': False},
 		style={'width': '100%'}
 	),
-	'cameras': dcc.Graph(
-		id='camera-graph',
-		config={'displayModeBar': False},
-		style={'width': '100%'}
+	# 'cameras': dcc.Graph(
+	# 	id='camera-graph',
+	# 	config={'displayModeBar': False},
+	# 	style={'width': '100%'}
+	# ),
+	# 'cameras_large': dcc.Graph(
+	# 	id='camera-graph-large',
+	# 	config={'displayModeBar': False},
+	# 	style={'width': '100%'}
+	# ),
+
+	'cameras_large': dbc.CardBody(
+		[
+			# html.H6(
+			# 	'Visual',
+			# 	className='card-subtitle',
+			# 	style={
+			# 		'color'     : 'black',
+			# 		'text-align': 'center'
+			# 	}
+			# ),
+			html.Div(
+				[
+				    html.Img(
+					    id='camera-img-left-large',
+					    style={
+						    'height': CAM_HEIGHT_LARGE,
+						    'width' : CAM_WIDTH_LARGE
+					    }
+				    ),
+					html.Img(
+						id='camera-img-right-large',
+						style={
+							'height': CAM_HEIGHT_LARGE,
+							'width' : CAM_WIDTH_LARGE
+						}
+					),
+					html.Div(
+						[
+							html.Img(
+								id='camera-pri-left-large',
+								style={
+									'height'  : CAM_HEIGHT_LARGE,
+									'width'   : CAM_WIDTH_LARGE,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+							html.Img(
+								id='camera-pri-right-large',
+								style={
+									'height'  : CAM_HEIGHT_LARGE,
+									'width'   : CAM_WIDTH_LARGE,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+						],
+						style={
+							'float': 'left',
+							'position': 'absolute',
+							'left': '0px',
+							'top': '0px',
+							'z-index': '2'
+						}
+					)
+				],
+				# Necessary for attention image to overlay vision
+				style={'position': 'relative'}
+			),
+		],
 	),
-	'cameras_large': dcc.Graph(
-		id='camera-graph-large',
-		config={'displayModeBar': False},
-		style={'width': '100%'}
+
+
+	# (!) TODO: Design visual attention graph layout here
+	'cameras': dbc.CardBody(
+		[
+			html.H6(
+				'Aural',
+				className='card-subtitle',
+		        style={
+			        'color'     : 'black',
+			        'text-align': 'center'
+		        }
+	        ),
+			html.Img(
+				id='audio-pri-wide',
+				style={
+					'height': PRIW_HEIGHT,
+					'width' : PRIW_WIDTH,
+				}
+			),
+			html.P(''),
+			html.H6(
+				'Visual',
+				className='card-subtitle',
+				style={
+					'color'     : 'black',
+					'text-align': 'center'
+				}
+			),
+			html.Div(
+				[
+				    html.Img(
+					    id='camera-img-left',
+					    style={
+						    'height': CAM_HEIGHT,
+						    'width' : CAM_WIDTH
+					    }
+				    ),
+					html.Img(
+						id='camera-img-right',
+						style={
+							'height': CAM_HEIGHT,
+							'width' : CAM_WIDTH
+						}
+					),
+					html.Div(
+						[
+							html.Img(
+								id='camera-pri-left',
+								style={
+									'height'  : CAM_HEIGHT,
+									'width'   : CAM_WIDTH,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+							html.Img(
+								id='camera-pri-right',
+								style={
+									'height'  : CAM_HEIGHT,
+									'width'   : CAM_WIDTH,
+									'opacity' : PRI_OPACITY,
+								}
+							),
+						],
+						style={
+							'float': 'left',
+							'position': 'absolute',
+							'left': '0px',
+							'top': '0px',
+							'z-index': '2'
+						}
+					)
+				],
+				# Necessary for attention image to overlay vision
+				style={'position': 'relative'}
+			),
+		],
 	),
-	# TODO: Design visual attention graph layout here
-	'cameras2': html.Div([
-		html.Img(id='audio-pri-wide'),
-	    html.Img(id='camera-img-left'),
-		html.Img(id='camera-img-right'),
-		html.Img(id='camera-pri-left'),
-		html.Img(id='camera-pri-right'),
-	]),
+
+
+	# 	html.Div([
+	# 	html.H6('Audio', style={'color': 'black'}),
+	# 	html.Div('test', style={'color': 'black', 'align': 'right', 'width': '1000px'}),
+	# 	html.Img(id='audio-pri-wide'),
+	# 	html.H6('Cameras', style={'color': 'black'}),
+	#     html.Img(id='camera-img-left'),
+	# 	html.Img(id='camera-img-right'),
+	# 	html.Img(id='camera-pri-left'),
+	# 	html.Img(id='camera-pri-right'),
+	# ]),
 	'circadian': dcc.Graph(
 		id='circadian-graph',
 		# 'Animate' property is incompatible with changing background images
@@ -344,6 +489,7 @@ dashboard_graphs = {
 }
 
 dashboard_intervals = html.Div([
+	# TODO: Possibly combine fast and medium intervals into single interval timer
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
@@ -631,12 +777,12 @@ dashboard_layouts['sleep_layout'] = go.Layout(dashboard_layouts['affect_layout']
 dashboard_layouts['sleep_layout']['xaxis']['title'] = 'Wakefulness'
 dashboard_layouts['sleep_layout']['yaxis']['title'] = 'Pressure'
 
-# TODO: Remove these once new camera plots are made
-dashboard_layouts['aural_layout_large'] = go.Layout(dashboard_layouts['aural_layout'])
-dashboard_layouts['aural_layout_large']['height'] = PRIW_HEIGHT_LARGE
-
-dashboard_layouts['camera_layout_large'] = go.Layout(dashboard_layouts['camera_layout'])
-dashboard_layouts['camera_layout_large']['height'] = CAM_HEIGHT_LARGE
+# # TODO: Remove these once new camera plots are made
+# dashboard_layouts['aural_layout_large'] = go.Layout(dashboard_layouts['aural_layout'])
+# dashboard_layouts['aural_layout_large']['height'] = PRIW_HEIGHT_LARGE
+#
+# dashboard_layouts['camera_layout_large'] = go.Layout(dashboard_layouts['camera_layout'])
+# dashboard_layouts['camera_layout_large']['height'] = CAM_HEIGHT_LARGE
 
 dashboard_tools = {
 	# TODO: Add a callback so the status of both toggles is synchronised
@@ -937,7 +1083,7 @@ dashboard_tabs = {
 	),
 	'spatial_graph': dbc.Tab(
 		[
-			dashboard_graphs['aural_large'],
+			# dashboard_graphs['aural_large'],
 			dashboard_graphs['cameras_large'],
 			dashboard_tools['cam_toggle_large'],
 			# dashboard_alerts['ball_large'],
@@ -1576,15 +1722,15 @@ dashboard_rows = {
 							],
 							className='bg-success font-weight-bold lead'
 						),
-						dbc.CardBody(
-							[
+						# dbc.CardBody(
+						# 	[
 								# dashboard_graphs['aural'],
 								# dashboard_graphs['cameras'],
-								dashboard_graphs['cameras2']
+								dashboard_graphs['cameras'],
 								# dashboard_alerts['ball'],
 								# dashboard_alerts['face'],
-							]
-						),
+						# 	]
+						# ),
 						# TODO: Remove camera toggle from small mode to reduce vertical space
 						dbc.CardFooter(dashboard_tools['cam_toggle'])
 					],
@@ -2018,9 +2164,6 @@ app.layout = html.Div([
 	),   # https://community.plot.ly/t/announcing-the-storage-component/13758
 ])
 
-# CSS modification needed to remove corner 'undo' button
-# app.css.append_css({'external_url': ASSET_PATH + 'stylesheet.css'})
-
 
 ##########
 # Define dashboard callbacks
@@ -2317,15 +2460,15 @@ def callback_fast(_, data):
 
 @app.callback(
 	[
-		# Output('aural-graph', 'figure'),
-		# Output('aural-graph-large', 'figure'),
-		# Output('camera-graph', 'figure'),
-		# Output('camera-graph-large', 'figure'),
+		Output('audio-pri-wide', 'src'),
 		Output('camera-img-left', 'src'),
 		Output('camera-img-right', 'src'),
 		Output('camera-pri-left', 'src'),
 		Output('camera-pri-right', 'src'),
-		Output('audio-pri-wide', 'src'),
+		Output('camera-img-left-large', 'src'),
+		Output('camera-img-right-large', 'src'),
+		Output('camera-pri-left-large', 'src'),
+		Output('camera-pri-right-large', 'src'),
 	],
 	[
 		Input('interval-medium', 'n_intervals'),
@@ -2334,113 +2477,53 @@ def callback_fast(_, data):
 	]
 )
 def callback_medium(_, toggle, toggle_large):
-	# Initialise output data dictionary
-	# output = {}
+	if miro_perception.caml is not None:
+		caml = miro_perception.caml
+		camr = miro_perception.camr
+		pril = miro_perception.pril
+		prir = miro_perception.prir
+		priw = miro_perception.priw
 
-	# # Aural
-	# priw = miro_perception.priw
-	#
-	# # Set image properties
-	# if priw is not None:
-	# 	priw_image = [{
-	# 		'layer'  : 'below',
-	# 		'opacity': 1,
-	# 		'sizing' : 'stretch',
-	# 		'sizex'  : 1,
-	# 		'sizey'  : 1,
-	# 		'source' : priw,
-	# 		'x'      : 0,
-	# 		'y'      : 0,
-	# 		'xref'   : 'paper',
-	# 		'yref'   : 'paper',
-	# 		'yanchor': 'bottom'
-	# 	}]
-	# else:
-	# 	priw_image = []
-	#
-	# # Update aural layout with imagery
-	# dashboard_layouts['aural_layout']['images'] = priw_image
-	# dashboard_layouts['aural_layout_large']['images'] = priw_image
-	#
-	# # Finalise graph output
-	# output['aural-graph'] = {'layout': dashboard_layouts['aural_layout']}
-	# output['aural-graph-large'] = {'layout': dashboard_layouts['aural_layout_large']}
+		caml_image = process_frame(caml, CAM_SCALE)
+		camr_image = process_frame(camr, CAM_SCALE)
 
-	# Cameras
-	# caml = miro_perception.caml
-	# camr = miro_perception.camr
-	# pril = miro_perception.pril
-	# prir = miro_perception.prir
+		if pril is not None and (toggle or toggle_large):
+			pril_image = process_frame(pril, 1)
+			prir_image = process_frame(prir, 1)
+		else:
+			pril_image = None
+			prir_image = None
 
-	# # Update camera images
-	# dashboard_layouts['caml_image']['source'] = caml
-	# dashboard_layouts['camr_image']['source'] = camr
-	# dashboard_layouts['pril_image']['source'] = pril
-	# dashboard_layouts['prir_image']['source'] = prir
-	#
-	# # Show vision with attention overlay, vision alone, or nothing
-	# if (caml is not None) and (camr is not None):
-	# 	if toggle or toggle_large:
-	# 		cam_images = [
-	# 			dashboard_layouts['caml_image'],
-	# 			dashboard_layouts['camr_image'],
-	# 			dashboard_layouts['pril_image'],
-	# 			dashboard_layouts['prir_image']
-	# 		]
-	# 	else:
-	# 		cam_images = [
-	# 			dashboard_layouts['caml_image'],
-	# 			dashboard_layouts['camr_image']
-	# 		]
-	# else:
-	# 	cam_images = []
-	#
-	# # Update camera layout with imagery
-	# dashboard_layouts['camera_layout']['images'] = cam_images
-	# dashboard_layouts['camera_layout_large']['images'] = cam_images
-	#
-	# # Finalise vision layout
-	# output['camera-graph'] = {'layout': dashboard_layouts['camera_layout']}
-	# output['camera-graph-large'] = {'layout': dashboard_layouts['camera_layout_large']}
+		if priw is not None:
+			priw_image = process_frame(priw, 1)
+		else:
+			priw_image = ASSET_PATH + 'test_priw.png'
 
-	# NEW METHOD
-	caml = miro_perception.caml
-	camr = miro_perception.camr
-	pril = miro_perception.pril
-	prir = miro_perception.prir
-	priw = miro_perception.priw
-
-	# TODO: Add 'if input is not none' part
-
-	caml_image = process_frame(caml, CAM2_SCALE)
-	camr_image = process_frame(camr, CAM2_SCALE)
-	if pril is not None:
-		pril_image = process_frame(pril, CAM2_SCALE)
-		prir_image = process_frame(prir, CAM2_SCALE)
-		priw_image = process_frame(priw, 1)
 	else:
+		# Show test patterns
+		caml_image = ASSET_PATH + 'test_cam_sml.png'
+		camr_image = ASSET_PATH + 'test_cam_sml.png'
 		pril_image = None
 		prir_image = None
-		priw_image = None
 
 	# Return all outputs
 	return \
+		priw_image, \
 		caml_image, \
 		camr_image, \
 		pril_image, \
 		prir_image, \
-		priw_image
-		# output['aural-graph'], \
-		# output['aural-graph-large'], \
-		# output['camera-graph'], \
-		# output['camera-graph-large'], \
-		# caml_out
+		caml_image, \
+		camr_image, \
+		pril_image, \
+		prir_image, \
+
 
 # TODO: Make this a function in MRI?
-def process_frame(data, scale):
+def process_frame(frame, scale):
 	# Create base64 URI from image: https://stackoverflow.com/questions/16065694/is-it-possible-to-create-encoded-base64-url-from-image-object
 	frame_buffer = BytesIO()
-	frame_sml = data.resize(tuple(dim / scale for dim in data.size))
+	frame_sml = frame.resize(tuple(dim / scale for dim in frame.size))
 	frame_sml.save(frame_buffer, format='PNG')
 	frame_b64 = base64.b64encode(frame_buffer.getvalue())
 
