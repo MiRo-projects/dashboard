@@ -270,7 +270,7 @@ dashboard_graphs = {
 	),
 	'affect_large': dcc.Graph(
 		id='affect-graph-large',
-		# 'Animate' property is incompatible with changing images
+		# 'Animate' property is incompatible with changing background images
 		# animate=True,
 		config={'displayModeBar': False},
 		style={
@@ -299,6 +299,7 @@ dashboard_graphs = {
 	# 	style={'width': '100%'}
 	# ),
 
+	# TODO: Add aural graph here as well
 	'cameras_large': dbc.CardBody(
 		[
 			# html.H6(
@@ -359,8 +360,6 @@ dashboard_graphs = {
 		],
 	),
 
-
-	# (!) TODO: Design visual attention graph layout here
 	'cameras': dbc.CardBody(
 		[
 			html.H6(
@@ -437,17 +436,6 @@ dashboard_graphs = {
 		],
 	),
 
-
-	# 	html.Div([
-	# 	html.H6('Audio', style={'color': 'black'}),
-	# 	html.Div('test', style={'color': 'black', 'align': 'right', 'width': '1000px'}),
-	# 	html.Img(id='audio-pri-wide'),
-	# 	html.H6('Cameras', style={'color': 'black'}),
-	#     html.Img(id='camera-img-left'),
-	# 	html.Img(id='camera-img-right'),
-	# 	html.Img(id='camera-pri-left'),
-	# 	html.Img(id='camera-pri-right'),
-	# ]),
 	'circadian': dcc.Graph(
 		id='circadian-graph',
 		# 'Animate' property is incompatible with changing background images
@@ -2411,7 +2399,7 @@ def callback_fast(_, data):
 				motivation_data['social'],
 				motivation_data['ball'],
 			],
-			'layout': dashboard_graphs['motivation_layout']
+			'layout': dashboard_layouts['motivation_layout']
 		}
 
 		motivation_figure_large = {
@@ -2419,7 +2407,7 @@ def callback_fast(_, data):
 				motivation_data['social'],
 				motivation_data['ball'],
 			],
-			'layout': dashboard_graphs['motivation_layout']
+			'layout': dashboard_layouts['motivation_layout']
 		}
 
 		output['motivation-graph'] = motivation_figure
