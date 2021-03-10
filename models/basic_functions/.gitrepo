@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/MiRo-projects/basic_functions.git
+	branch = master
+	commit = ed3d4824181dc7a7d3eb4487307e4260181e0f81
+	parent = 393867b1796b8563161428fd9dfe7da48619bced
+	method = merge
+	cmdver = 0.4.3
