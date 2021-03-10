@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # MiRo dashboard modules
-import dashboard_constants as con
+import constants as con
 
 dashboard_graphs = {
 	'action'          : dcc.Graph(

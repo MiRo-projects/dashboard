@@ -3,16 +3,18 @@ from dash.dependencies import Input, Output
 
 # MiRo dashboard modules
 from app import app
-import dashboard_constants as con
+import constants as con
 
 # MiRo interface modules
 from models.basic_functions import miro_ros_interface as mri
 
 # Other modules
 import base64
+import cv2
 from io import BytesIO
 
 # Initialise MiRo clients
+miro_core = mri.MiRoCore()
 miro_perception = mri.MiRoPerception()
 
 
@@ -37,19 +39,23 @@ miro_perception = mri.MiRoPerception()
 def callback_medium(_, toggle, toggle_large):
 	def process_frame(frame, scale):
 		# Create base64 URI from image: https://stackoverflow.com/questions/16065694/is-it-possible-to-create-encoded-base64-url-from-image-object
-		frame_buffer = BytesIO()
-		frame_sml = frame.resize(tuple(dim / scale for dim in frame.size))
-		frame_sml.save(frame_buffer, format='PNG')
-		frame_b64 = base64.b64encode(frame_buffer.getvalue())
+		# frame_buffer = BytesIO()
+		# frame_sml = frame.resize(tuple(dim / scale for dim in frame.size))
+		# frame_sml.save(frame_buffer, format='PNG')
+		# frame_b64 = base64.b64encode(frame_buffer.getvalue())
 
-		return 'data:image/png;base64,{}'.format(frame_b64)
+		retval, im = cv2.imencode('.png', frame)
+		data = base64.b64encode(im)
+
+		return 'data:image/png;base64,{}'.format(data)
+		# return 'data:image/png;base64,{}'.format(frame_b64)
 
 	if miro_perception.caml is not None:
 		caml = miro_perception.caml
 		camr = miro_perception.camr
-		pril = miro_perception.pril
-		prir = miro_perception.prir
-		priw = miro_perception.priw
+		pril = miro_core.pril
+		prir = miro_core.prir
+		priw = miro_core.priw
 
 		caml_image = process_frame(caml, con.CAM_SCALE)
 		camr_image = process_frame(camr, con.CAM_SCALE)

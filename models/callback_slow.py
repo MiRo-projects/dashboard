@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 
 # MiRo dashboard modules
 from app import app
-import dashboard_constants as con
+import constants as con
 
 # MiRo interface modules
 from models.basic_functions import miro_ros_interface as mri

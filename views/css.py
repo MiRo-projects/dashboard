@@ -1,5 +1,5 @@
 # MiRo dashboard modules
-import dashboard_constants as con
+import constants as con
 
 # Custom CSS for lines and arrows
 css = {
