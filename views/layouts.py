@@ -2,7 +2,7 @@
 import plotly.graph_objs as go
 
 # MiRo dashboard modules
-import dashboard_constants as con
+import constants as con
 
 dashboard_layouts = {
 	# Action selection
