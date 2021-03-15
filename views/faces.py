@@ -1,5 +1,5 @@
 # MiRo dashboard modules
-import constants as con
+import dashboard_constants as con
 
 # Affect faces
 affect_faces = {

@@ -4,7 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # MiRo dashboard modules
-import constants as con
+import dashboard_constants as con
 
 dashboard_graphs = {
 	'action'          : dcc.Graph(
@@ -64,7 +64,6 @@ dashboard_graphs = {
 	# 	config={'displayModeBar': False},
 	# 	style={'width': '100%'}
 	# ),
-
 	# TODO: Add aural graph here as well
 	'cameras_large'   : dbc.CardBody(
 		[
@@ -125,7 +124,6 @@ dashboard_graphs = {
 			),
 		],
 	),
-
 	'cameras'         : dbc.CardBody(
 		[
 			html.H6(

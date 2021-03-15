@@ -3,7 +3,7 @@ from dash.dependencies import Input, Output
 
 # MiRo dashboard modules
 from app import app
-import constants as con
+import dashboard_constants as con
 
 # MiRo interface modules
 from models.basic_functions import miro_ros_interface as mri
@@ -44,10 +44,18 @@ def callback_medium(_, toggle, toggle_large):
 		# frame_sml.save(frame_buffer, format='PNG')
 		# frame_b64 = base64.b64encode(frame_buffer.getvalue())
 
-		retval, im = cv2.imencode('.png', frame)
-		data = base64.b64encode(im)
+		# _, im_arr = cv2.imencode('.png', frame)
+		im_bytes = frame.tobytes()
+		im_b64 = base64.b64encode(im_bytes)
 
-		return 'data:image/png;base64,{}'.format(data)
+		# with open("/home/dbx/image", "wb") as fh:
+		# 	fh.write(base64.decodebytes(im_b64))
+
+		# image_data = im_b64.decode()
+
+		# return 'data:image/png;base64,{}'.format(data)
+		return 'data:image/png;base64,{}'.format(im_b64.decode())
+		# base64.decodebytes(data)
 		# return 'data:image/png;base64,{}'.format(frame_b64)
 
 	if miro_perception.caml is not None:
@@ -64,8 +72,7 @@ def callback_medium(_, toggle, toggle_large):
 			pril_image = process_frame(pril, 1)
 			prir_image = process_frame(prir, 1)
 		else:
-			pril_image = None
-			prir_image = None
+			pril_image = prir_image = None
 
 		# TODO: Change to EAF method
 		if priw is not None:
@@ -75,10 +82,9 @@ def callback_medium(_, toggle, toggle_large):
 
 	else:
 		# Show test patterns
-		caml_image = con.ASSET_PATH + 'test_cam_sml.png'
-		camr_image = con.ASSET_PATH + 'test_cam_sml.png'
-		pril_image = None
-		prir_image = None
+		caml_image = camr_image = con.ASSET_PATH + 'test_cam_sml.png'
+		pril_image = prir_image = None
+		priw_image = con.ASSET_PATH + 'test_priw.png'
 
 	# Return all outputs
 	return \

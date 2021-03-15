@@ -3,7 +3,7 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 # MiRo dashboard modules
-import constants as con
+import dashboard_constants as con
 from views.css import css
 from views.alerts import dashboard_alerts
 from views.graphs import dashboard_graphs
