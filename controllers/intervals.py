@@ -7,17 +7,21 @@ dashboard_intervals = html.Div([
 	dcc.Interval(
 		id='interval-fast',
 		# Too short an interval causes issues as not all plots can be updated before the next callback
-		interval=0.1 * 1000,    # Every tenth of a second
+		# Every tenth of a second
+		interval=0.1 * 1000,
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-medium',
-		interval=0.2 * 1000,    # Every fifth of a second
+		# Every fifth of a second
+		# interval=0.2 * 1000,
+		interval=0.8 * 1000,
 		n_intervals=0
 	),
 	dcc.Interval(
 		id='interval-slow',
-		interval=60 * 1000,     # Every minute
+		# Every minute
+		interval=60 * 1000,
 		n_intervals=0
 	)
 ])

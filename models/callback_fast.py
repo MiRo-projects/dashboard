@@ -4,7 +4,7 @@ import plotly.graph_objs as go
 
 # MiRo dashboard modules
 from app import app
-import constants as con
+import dashboard_constants as con
 from views.faces import affect_faces, sleep_faces
 from views.layouts import dashboard_layouts
 
