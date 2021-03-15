@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/MiRo-projects/basic_functions.git
 	branch = master
-	commit = ed3d4824181dc7a7d3eb4487307e4260181e0f81
-	parent = 393867b1796b8563161428fd9dfe7da48619bced
+	commit = ebc070004b19b6d28de9166ade2705ee7acd33b8
+	parent = 53714b1fe8d109ef2c4c906db71ea45fd2b432a2
 	method = merge
 	cmdver = 0.4.3
