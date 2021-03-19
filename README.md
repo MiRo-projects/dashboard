@@ -6,7 +6,7 @@ Interactive web dashboard displaying MiRo-E cognitive architecture with live dat
 
 MiRo is a biomimetic robot mammal with a cognitive architecture based on the mammalian brain (Mitchinson & Prescott, 2016). However, it is not normally possible to access the data and processes underlying this architecture that give rise to the robot's behaviour.
 
-The MiRo dashboard allows users to observe these systems in action while they interact with the robot, giving insight and immediate feedback into the robot's actions and reactions. The dashboard also features short informational overlays to explain the similarities and differences between MiRo's cognitive architecture and that of a real mammal.
+The MiRo dashboard allows users to observe these systems in action during interactions with the robot, giving insight into the robot's actions and reactions. The dashboard also features short informational overlays to explain the similarities and differences between key aspects of MiRo's cognitive architecture and those of a real mammal.
 
 ![Action selection](./.images/dashboard_actionselection.png)
 
