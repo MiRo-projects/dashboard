@@ -100,8 +100,7 @@ def callback_fast(_, data):
 	}
 
 	# Affect
-	affect_input = miro_core.affect
-	if affect_input is not None:
+	if miro_core.emotion is not None:
 		affect_data = {
 			'emotion': go.Scatter(
 				# TODO: Make hovertext show both X and Y values together
@@ -116,8 +115,8 @@ def callback_fast(_, data):
 				mode='markers',
 				name='Emotion',
 				opacity=0.7,
-				x=np.array(np.round(affect_input.emotion.valence, decimals=3)),
-				y=np.array(np.round(affect_input.emotion.arousal, decimals=3)),
+				x=np.array(np.round(miro_core.emotion.valence, decimals=3)),
+				y=np.array(np.round(miro_core.emotion.arousal, decimals=3)),
 			),
 			'mood'   : go.Scatter(
 				marker={
@@ -131,8 +130,8 @@ def callback_fast(_, data):
 				mode='markers',
 				name='Mood',
 				opacity=0.7,
-				x=np.array(np.round(affect_input.mood.valence, decimals=3)),
-				y=np.array(np.round(affect_input.mood.arousal, decimals=3)),
+				x=np.array(np.round(miro_core.mood.valence, decimals=3)),
+				y=np.array(np.round(miro_core.mood.arousal, decimals=3)),
 			),
 			'sleep'  : go.Scatter(
 				marker={
@@ -146,8 +145,8 @@ def callback_fast(_, data):
 				mode='markers',
 				name='Wakefulness',
 				opacity=0.7,
-				x=np.array(np.round(affect_input.sleep.wakefulness, decimals=3)),
-				y=np.array(np.round(affect_input.sleep.pressure, decimals=3)),
+				x=np.array(np.round(miro_core.sleep.wakefulness, decimals=3)),
+				y=np.array(np.round(miro_core.sleep.pressure, decimals=3)),
 			)
 		}
 
@@ -299,6 +298,7 @@ def callback_fast(_, data):
 		output['motivation-graph'], \
 		output['motivation-graph-large'], \
 		motivation_input
+
 # FIXME: Alerts are broken until MRI is updated
 # output['ball-alert'], \
 # output['ball-alert-large'], \

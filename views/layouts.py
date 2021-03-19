@@ -7,7 +7,7 @@ import dashboard_constants as con
 dashboard_layouts = {
 	# Action selection
 	# TODO: Extract this list automatically
-	'action_list': [
+	'action_list'      : [
 		'Mull',
 		'Orient',
 		'Approach',
@@ -17,7 +17,7 @@ dashboard_layouts = {
 		'Retreat',
 		'Special'
 	],
-	'action_layout': go.Layout(
+	'action_layout'    : go.Layout(
 		bargap=0.1,
 		barmode='overlay',
 		margin={
@@ -40,7 +40,7 @@ dashboard_layouts = {
 	),
 
 	# Affect
-	'affect_layout': go.Layout(
+	'affect_layout'    : go.Layout(
 		legend={
 			'orientation': 'h',
 			'x'          : 0.5,
@@ -115,7 +115,7 @@ dashboard_layouts = {
 	),
 
 	# Aural
-	'aural_layout': go.Layout(
+	'aural_layout'     : go.Layout(
 		height=con.PRIW_HEIGHT,
 		margin={
 			'b': 0,
@@ -141,7 +141,7 @@ dashboard_layouts = {
 		],
 		# images=priw_image,
 		title={
-			'pad': {
+			'pad'    : {
 				'b': 10,
 				'l': 0,
 				'r': 0,
@@ -163,7 +163,7 @@ dashboard_layouts = {
 	),
 
 	# Vision
-	'camera_layout': go.Layout(
+	'camera_layout'    : go.Layout(
 		height=con.CAM_HEIGHT,
 		# images=cam_images,
 		margin={
@@ -209,12 +209,12 @@ dashboard_layouts = {
 	),
 
 	# Camera images
-	'caml_image': {
+	'caml_image'       : {
 		'layer'  : 'below',
 		'opacity': 1,
 		'sizing' : 'contain',
 		'sizex'  : 0.5,
-		'sizey'  : 1,       # Overridden by 'constrain' property but must still be set
+		'sizey'  : 1,  # Overridden by 'constrain' property but must still be set
 		# 'source' : caml,
 		'x'      : 0,
 		'xanchor': 'left',
@@ -223,7 +223,7 @@ dashboard_layouts = {
 		'yanchor': 'bottom',
 		'yref'   : 'paper',
 	},
-	'camr_image': {
+	'camr_image'       : {
 		'layer'  : 'below',
 		'opacity': 1,
 		'sizing' : 'contain',
@@ -237,7 +237,7 @@ dashboard_layouts = {
 		'yanchor': 'bottom',
 		'yref'   : 'paper',
 	},
-	'pril_image': {
+	'pril_image'       : {
 		'layer'  : 'above',
 		'opacity': 0.5,
 		'sizing' : 'contain',
@@ -251,7 +251,7 @@ dashboard_layouts = {
 		'yanchor': 'bottom',
 		'yref'   : 'paper',
 	},
-	'prir_image': {
+	'prir_image'       : {
 		'layer'  : 'above',
 		'opacity': 0.5,
 		'sizing' : 'contain',
