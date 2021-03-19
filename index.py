@@ -12,12 +12,7 @@ import models.callback_modal
 # Separation of app.py and index.py required to allow definition of callbacks in separate files
 # See bottom of https://dash.plotly.com/urls
 
-# TODO: Make BG plot legible at smaller size
-# TODO: Reduce vertical size of affect plots
-# TODO: Reduce vertical size of 'Expression' box
 # TODO: Package into easy-install app bundle
-# TODO: Move processing of ROS data to MRI
-# TODO: Remove bottom row and move arrows up by a row to reduce vertical space
 # TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
 
 if __name__ == '__main__':

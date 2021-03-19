@@ -31,7 +31,7 @@ dashboard_alerts = {
 	# 	className='m-0 large text-center',
 	# 	is_open=False,
 	# ),
-	'intro': dbc.Alert(
+	'intro'      : dbc.Alert(
 		[
 			html.H4('MiRo Dashboard', className='alert-heading'),
 			html.P('This visual representation of MiRo\'s \"cognitive architecture\" reveals some of the '
@@ -43,8 +43,19 @@ dashboard_alerts = {
 		color='primary',
 	),
 	'connections': dbc.Alert(
-		'Many up– and downstream connections are omitted for clarity',
+		'Many up– and downstream connections have been omitted for clarity',
 		className='mx-5 shadow small',
 		color='light',
+		style={'float': 'left'}
+	),
+	'to_higher'  : dbc.Alert(
+		'⬆ To higher functions ⬆',
+		color='dark',
+		className='my-0 py-0 text-center'
+	),
+	'to_lower'   : dbc.Alert(
+		'⬇ To lower functions ⬇',
+		color='dark',
+		className='my-0 py-0 text-center'
 	),
 }

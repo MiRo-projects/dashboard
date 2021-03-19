@@ -4,12 +4,16 @@ import dash_core_components as dcc
 import dash_html_components as html
 
 # MiRo dashboard modules
-from views.graphs import dashboard_graphs
-from controllers.tools import dashboard_tools
+from views.data_displays import (
+	action_selection,
+	affect,
+	motivation,
+	spatial_attention
+)
 
 dashboard_tabs = {
-	'action_graph' : dbc.Tab(dashboard_graphs['action_large'], label='Live data'),
-	'action_info': dbc.Tab(
+	'action_graph'    : action_selection.modal_tab,
+	'action_info'     : dbc.Tab(
 		[
 			dbc.Alert(
 				'Action selection is a fundamental process for all animal life. To successfully navigate the world '
@@ -70,17 +74,8 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
-	'affect_graph': dbc.Tab(
-		dbc.Table(
-			html.Tr([
-				html.Td(dashboard_graphs['affect_large']),
-				html.Td(dashboard_graphs['sleep_large'])
-			]),
-			borderless=True
-		),
-		label='Live data'
-	),
-	'affect_info' : dbc.Tab(
+	'affect_graph'    : affect.modal_tab,
+	'affect_info'     : dbc.Tab(
 		[
 			dbc.Alert(
 				'Emotions arise from complex neurological, biological, and physiological interactions, though the '
@@ -142,9 +137,8 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
-	'circadian_info': dbc.Tab(
+	'circadian_info'  : dbc.Tab(
 		[
-			# TODO: Circadian information
 			dbc.Alert(
 				'Circadian rhythms regulate many important biological processes such as hunger and sleep, and are '
 				'maintained through exposure to periodically varying stimuli such as light or heat',
@@ -191,8 +185,8 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
-	'motivation_graph' : dbc.Tab(dashboard_graphs['motivation_large'], label='Live data'),
-	'motivation_info': dbc.Tab(
+	'motivation_graph': motivation.modal_tab,
+	'motivation_info' : dbc.Tab(
 		[
 			dbc.Alert(
 				'Animal behaviour is motivated by intrinsic and extrinsic drives, such as the need to keep warm or to '
@@ -253,17 +247,8 @@ dashboard_tabs = {
 		],
 		label='Information'
 	),
-	'spatial_graph': dbc.Tab(
-		[
-			# dashboard_graphs['aural_large'],
-			dashboard_graphs['cameras_large'],
-			dashboard_tools['cam_toggle_large'],
-			# dashboard_alerts['ball_large'],
-			# dashboard_alerts['face_large'],
-		],
-		label='Live data'
-	),
-	'spatial_info'  : dbc.Tab(
+	'spatial_graph'   : spatial_attention.modal_tab,
+	'spatial_info'    : dbc.Tab(
 		[
 			dbc.Alert(
 				'Animals have constant access to an enormous amount of sensory data, much of which will not be '

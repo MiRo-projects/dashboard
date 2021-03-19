@@ -11,7 +11,6 @@ from models.basic_functions import miro_ros_interface as mri
 # Other modules
 import base64
 import cv2
-from io import BytesIO
 
 # Initialise MiRo clients
 miro_core = mri.MiRoCore()
@@ -38,25 +37,15 @@ miro_perception = mri.MiRoPerception()
 )
 def callback_medium(_, toggle, toggle_large):
 	def process_frame(frame, scale):
-		# Create base64 URI from image: https://stackoverflow.com/questions/16065694/is-it-possible-to-create-encoded-base64-url-from-image-object
-		# frame_buffer = BytesIO()
-		# frame_sml = frame.resize(tuple(dim / scale for dim in frame.size))
-		# frame_sml.save(frame_buffer, format='PNG')
-		# frame_b64 = base64.b64encode(frame_buffer.getvalue())
+		# Resize image for speedier updates
+		frame_sml = cv2.resize(frame, tuple(int(dim / scale) for dim in frame.shape[:2]))
 
-		# _, im_arr = cv2.imencode('.png', frame)
-		im_bytes = frame.tobytes()
+		# Create base64 URI from OpenCV image: https://jdhao.github.io/2020/03/17/base64_opencv_pil_image_conversion/
+		_, im_arr = cv2.imencode('.png', frame_sml)
+		im_bytes = im_arr.tobytes()
 		im_b64 = base64.b64encode(im_bytes)
 
-		# with open("/home/dbx/image", "wb") as fh:
-		# 	fh.write(base64.decodebytes(im_b64))
-
-		# image_data = im_b64.decode()
-
-		# return 'data:image/png;base64,{}'.format(data)
 		return 'data:image/png;base64,{}'.format(im_b64.decode())
-		# base64.decodebytes(data)
-		# return 'data:image/png;base64,{}'.format(frame_b64)
 
 	if miro_perception.caml is not None:
 		caml = miro_perception.caml

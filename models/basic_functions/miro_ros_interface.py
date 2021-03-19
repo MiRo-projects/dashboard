@@ -5,12 +5,13 @@ from std_msgs.msg import Float32MultiArray, UInt32MultiArray, UInt16MultiArray, 
 from miro2_msg import msg
 
 # MiRo-E modules and parameters
-# from . import miro_constants as con
-import miro_constants as con
+try:
+	from . import miro_constants as con
+except ImportError:
+	import miro_constants as con
 import miro2 as miro
 
 # Other packages
-# import base64
 import cv2
 import datetime
 import math
@@ -23,13 +24,18 @@ import rospy
 class MiRo:
 	def __init__(self):
 		name = 'MiRo_ROS_interface'
+		# Initialise ROS node ('disable_rostime=True' needed to work in PyCharm)
 		if name not in rosnode.get_node_names():
-			# Initialise ROS node ('disable_rostime=True' needed to work in PyCharm)
 			rospy.init_node(name, anonymous=True, disable_rostime="PYCHARM_HOSTED" in os.environ)
+			
+		# ROS topic root
+		self.tr = '/' + os.getenv('MIRO_ROBOT_NAME') + '/'
 
-		self.tr = '/' + os.getenv('MIRO_ROBOT_NAME') + '/'  # ROS topic root
-		self.qs = 2                                         # Publisher queue size
-		self.sleep_time = 0.5                               # Initialisation sleep duration
+		# Publisher queue size
+		self.qs = 2
+
+		# Initialisation sleep duration
+		self.sleep_time = 0.5
 
 	@staticmethod
 	def ros_sleep(time):
@@ -79,6 +85,7 @@ class MiRoCore(MiRo):
 		self.selection_priority = None
 		self.sleep = None
 		self.time = None
+		self.time_raw = None
 
 		# Sleep for ROS initialisation
 		self.ros_sleep(self.sleep_time)
@@ -87,7 +94,13 @@ class MiRoCore(MiRo):
 		self.emotion = data.emotion
 		self.mood = data.mood
 		self.sleep = data.sleep
-		self.time = datetime.timedelta(data.time_of_day)
+		self.time_raw = data.time_of_day
+		timedelta = datetime.timedelta(self.time_raw)
+		try:
+			self.time = datetime.datetime.strptime(str(timedelta), '%H:%M:%S.%f').time()
+		except ValueError:
+			# Catch errors when microseconds == 0
+			self.time = datetime.datetime.strptime(str(timedelta), '%H:%M:%S').time()
 
 	def callback_motivation(self, data):
 		self.motivation = data
@@ -254,7 +267,7 @@ class MiRoPublishers(MiRo):
 
 	# Publish wheel speeds (m/s)
 	def pub_cmd_vel_ms(self, left=0, right=0):
-		(dr, dtheta) = miro.utils.wheel_speed2cmd_vel([left, right])
+		(dr, dtheta) = miro.lib.miro_utils.wheel_speed2cmd_vel([left, right])
 		self.pub_cmd_vel_rad(dr, dtheta)
 
 	# Publish wheel speeds (radians)
@@ -266,12 +279,12 @@ class MiRoPublishers(MiRo):
 	# Publish cosmetic joint positions
 	def pub_cosmetic_joints(
 			self,
-			droop=con.DROOP,
-			wag=con.WAG,
-			eye_left=con.EYE,
-			eye_right=con.EYE,
-			ear_left=con.EAR,
-			ear_right=con.EAR,
+			droop=miro.constants.DROOP_DEFAULT,
+			wag=miro.constants.WAG_DEFAULT,
+			eye_left=miro.constants.EYE_DEFAULT,
+			eye_right=miro.constants.EYE_DEFAULT,
+			ear_left=miro.constants.EAR_DEFAULT,
+			ear_right=miro.constants.EAR_DEFAULT,
 			**kwargs
 	):
 		# Normalised configuration of cosmetic joints
@@ -282,10 +295,29 @@ class MiRoPublishers(MiRo):
 		# Eyes:  0=open     1=closed
 		# Ears:  0=inwards  1=outwards
 
+		# Named joint positions
+		if droop == 'up': droop = 0
+		if droop == 'down': droop = 1
+		if wag == 'left': wag = 0
+		if wag == 'right': wag = 1
+		if eye_left == 'open': eye_left = 0
+		if eye_left == 'closed': eye_left = 1
+		if eye_right == 'open': eye_right = 0
+		if eye_right == 'closed': eye_right = 1
+		if ear_left in ('inwards', 'in'): ear_left = 0
+		if ear_left in ('outwards', 'out'): ear_left = 1
+		if ear_right in ('inwards', 'in'): ear_right = 0
+		if ear_right in ('outwards', 'out'): ear_right = 1
+
 		# Set multiple joints at once
-		if kwargs.get('eyes'):
+		if 'eyes' in kwargs.keys():
+			if kwargs['eyes'] == 'open': kwargs['eyes'] = 0
+			if kwargs['eyes'] == 'closed': kwargs['eyes'] = 1
 			eye_left = eye_right = kwargs['eyes']
-		if kwargs.get('ears'):
+
+		if 'ears' in kwargs.keys():
+			if kwargs['ears'] in ('inwards', 'in'): kwargs['ears'] = 0
+			if kwargs['ears'] in ('outwards', 'out'): kwargs['ears'] = 1
 			ear_left = ear_right = kwargs['ears']
 
 		self.cosmetic_joints_msg.data = [droop, wag, eye_left, eye_right, ear_left, ear_right]
@@ -294,34 +326,28 @@ class MiRoPublishers(MiRo):
 	# Publish kinematic joint positions
 	def pub_kinematic_joints(
 			self,
-			lift=con.LIFT['calib'],
-			yaw=con.YAW['calib'],
-			pitch=con.PITCH['calib']
+			lift=math.degrees(miro.constants.LIFT_RAD_CALIB),
+			yaw=math.degrees(miro.constants.YAW_RAD_CALIB),
+			pitch=math.degrees(miro.constants.PITCH_RAD_CALIB)
 	):
 		# Internal DOF configuration (radians) in the order [TILT, LIFT, YAW, PITCH]
 		self.kinematic_joints_msg.position = [
-			math.radians(con.TILT),
-			math.radians(
-				np.clip(
-					lift,
-					con.LIFT['min'],
-					con.LIFT['max']
-				)
+			miro.constants.TILT_RAD_CALIB,
+			np.clip(
+				math.radians(lift),
+				miro.constants.LIFT_RAD_MIN,
+				miro.constants.LIFT_RAD_MAX
 			),
-			math.radians(
-				np.clip(
-					yaw,
-					con.YAW['min'],
-					con.YAW['max']
-				)
+			np.clip(
+				math.radians(yaw),
+				miro.constants.YAW_RAD_MIN,
+				miro.constants.YAW_RAD_MAX
 			),
-			math.radians(
-				np.clip(
-					pitch,
-					con.PITCH['min'],
-					con.PITCH['max']
-				)
-			),
+			np.clip(
+				math.radians(pitch),
+				miro.constants.PITCH_RAD_MIN,
+				miro.constants.PITCH_RAD_MAX
+			)
 		]
 
 		self.kinematic_joints.publish(self.kinematic_joints_msg)
@@ -369,20 +395,19 @@ class MiRoPublishers(MiRo):
 		self.illum.publish(self.illum_msg)
 
 	# Publish audio tone
+	# TODO: Use * to force keyword arguments in Python 3
 	def pub_tone(
 			self,
+			duration,
+			volume,
 			frequency=None,
-			volume=None,
-			duration=None,
-			note=None
+			note=None,
 	):
 		# Convert a string note (eg. "A4") to a frequency (eg. 440)
 		# From https://gist.github.com/CGrassin/26a1fdf4fc5de788da9b376ff717516e - MIT license
 		def get_frequency(n, a4=440):
 			notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
-
 			octave = int(n[2]) if len(n) == 3 else int(n[1])
-
 			key_number = notes.index(n[0:-1])
 
 			if key_number < 3:
@@ -393,13 +418,14 @@ class MiRoPublishers(MiRo):
 			return a4 * 2 ** ((key_number - 49) / 12)
 
 		# A note value overrides the specified frequency
-		if note is not None:
-			try:
-				frequency = get_frequency(note)
-			except IndexError:
-				print('Please specify both note and octave value, eg. C4')
-			except ValueError:
-				print('{} is not a recognised note'.format(note))
+		try:
+			frequency = get_frequency(note)
+		except IndexError:
+			print('Please specify both note and octave value, eg. C4')
+		except ValueError:
+			print('{} is not a recognised note'.format(note))
+		except TypeError:
+			pass
 
 		# Frequency in Hz (values between 50 and 2000)
 		frequency = int(np.clip(
@@ -416,7 +442,7 @@ class MiRoPublishers(MiRo):
 		)
 
 		# Duration in seconds (20ms platform ticks * 50)
-		duration = np.maximum(0, duration * 50)
+		duration = np.maximum(0, duration * miro.constants.PLATFORM_TICK_HZ)
 
 		self.tone_msg.data = [frequency, volume, duration]
 		self.tone.publish(self.tone_msg)

@@ -3,21 +3,20 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 
 # MiRo dashboard modules
-import dashboard_constants as con
-from views.css import css
 from views.alerts import dashboard_alerts
-from views.graphs import dashboard_graphs
-from controllers.tools import dashboard_tools
+from views.cards import dashboard_cards
+from views.css import css
+from views.data_displays import (
+	action_selection,
+	affect,
+	circadian_rhythm,
+	motivation,
+	spatial_attention
+)
 
 dashboard_rows = {
 	'Row_top': dbc.Row(
-		dbc.Col(
-			dbc.Alert(
-				'⬆ To higher functions ⬆',
-				color='dark',
-				className='my-0 py-0 text-center'
-			)
-		),
+		dbc.Col(dashboard_alerts['to_higher']),
 		no_gutters=True
 	),
 
@@ -95,10 +94,7 @@ dashboard_rows = {
 			# Column 4
 			dbc.Col(
 				[
-					dbc.Card(
-						dbc.CardBody('Sum of current motor output and selected action'),
-						color='light',
-					),
+					dashboard_cards['motor_sum'],
 					html.Div(style=css['line_vertical']),
 				],
 				width={
@@ -122,21 +118,7 @@ dashboard_rows = {
 
 			# Column 6-10
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader(
-							[
-								'Action selection',
-								dashboard_tools['action_button'],
-							],
-							className='bg-warning font-weight-bold lead'
-						),
-						dbc.CardBody(dashboard_graphs['action'])
-					],
-					color='warning',
-					inverse=True,
-					outline=True,
-				),
+				action_selection.card,
 				width={
 					'size'  : 5,
 					'offset': 0
@@ -244,20 +226,13 @@ dashboard_rows = {
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(style=css['arrow_right']),
+					# Uncomment to enable motivation graph
+					# Motivation START
+					# html.Div(style=css['line_horizontal']),
+					# html.Div(style=css['arrow_right']),
+					# Motivation END
 				],
-				# dbc.Card(
-				# 	[
-				# 		dbc.CardHeader('Environment'),
-				# 		dbc.CardImg(
-				# 			src=con.ASSET_PATH + 'icon_park.png',
-				# 			bottom=True
-				# 		)
-				# 	],
-				# 	color='light',
-				# 	className='ml-1',
-				# ),
+				# dashboard_cards['environment'],
 				width={
 					'size'  : 1,
 					'offset': 0
@@ -267,39 +242,14 @@ dashboard_rows = {
 			# Column 2-3
 			dbc.Col(
 				[
-					dbc.Card(
-						[
-							dbc.CardBody('Motor reafferent noise filter'),
-							dbc.CardFooter(
-								'➡ Self-activity reports',
-								style={'font-size': 'x-small'}
-							),
-						],
-						color='light'
-					),
-					html.Div(style=css['line_horizontal_clear']),
-					dbc.Card(
-						[
-							dbc.CardHeader(
-								[
-									'Motivation',
-									dashboard_tools['motivation_button']
-								],
-								className='bg-danger font-weight-bold lead'
-							),
-							dbc.CardBody(dashboard_graphs['motivation']),
-							dbc.CardFooter(
-								'➡ Internal drives',
-								style={
-									'color'    : 'black',
-									'font-size': 'x-small'
-								}
-							),
-						],
-						color='danger',
-						inverse=True,
-						outline=True,
-					),
+					dashboard_cards['motor_reafferent'],
+					# Uncomment to enable motivation graph
+					# Motivation START
+					# html.Div(style=css['line_horizontal_clear']),
+					# Motivation END
+					# And remove display=none tag from motivation card
+					motivation.card
+
 				],
 				width={
 					'size'  : 2,
@@ -318,8 +268,11 @@ dashboard_rows = {
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(style=css['arrow_right_clear']),
+					# Uncomment to enable motivation graph
+					# Motivation START
+					# html.Div(style=css['line_horizontal']),
+					# html.Div(style=css['arrow_right_clear']),
+					# Motivation END
 					html.Div(style=css['line_vertical']),
 				],
 				width={
@@ -341,8 +294,11 @@ dashboard_rows = {
 						html.Div(style=css['arrow_right_clear']),
 						html.Div(style=css['line_horizontal_clear']),
 						html.Div(style=css['arrow_right_clear']),
-						html.Div(style=css['line_horizontal']),
-						html.Div(style=css['arrow_right_clear']),
+						# Uncomment to enable motivation graph
+						# Motivation START
+						# html.Div(style=css['line_horizontal']),
+						# html.Div(style=css['arrow_right_clear']),
+						# Motivation END
 						html.Div(style=css['line_vertical']),
 					]
 				),
@@ -366,8 +322,11 @@ dashboard_rows = {
 					html.Div(style=css['arrow_right_clear']),
 					html.Div(style=css['line_horizontal_clear']),
 					html.Div(style=css['arrow_right_clear']),
-					html.Div(style=css['line_horizontal']),
-					html.Div(style=css['arrow_right']),
+					# Uncomment to enable motivation graph
+					# Motivation START
+					# html.Div(style=css['line_horizontal']),
+					# html.Div(style=css['arrow_right']),
+					# Motivation END
 					html.Div(style=css['line_vertical']),
 				],
 				width={
@@ -378,33 +337,7 @@ dashboard_rows = {
 
 			# Column 7-9
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader(
-							[
-								'Spatial attention',
-								dashboard_tools['spatial_button']
-							],
-							className='bg-success font-weight-bold lead'
-						),
-						# dbc.CardBody(
-						# 	[
-						# dashboard_graphs['aural'],
-						# dashboard_graphs['cameras'],
-						dashboard_graphs['cameras'],
-						# dashboard_alerts['ball'],
-						# dashboard_alerts['face'],
-						# 	]
-						# ),
-						# TODO: Remove camera toggle from small mode to reduce vertical space
-						dbc.CardFooter(dashboard_tools['cam_toggle'])
-					],
-					color='success',
-					inverse=True,
-					outline=True,
-					# Some cards are forced to 100% height so that arrows always connect cleanly
-					style={'height': '100%'}
-				),
+				spatial_attention.card,
 				width={
 					'size'  : 3,
 					'offset': 0
@@ -413,23 +346,7 @@ dashboard_rows = {
 
 			# Column 10-12
 			dbc.Col(
-				dbc.Card(
-					[
-						dbc.CardHeader(
-							[
-								'Affect',
-								dashboard_tools['affect_button']
-							],
-							className='bg-info font-weight-bold lead'
-						),
-						dbc.CardBody(dashboard_graphs['affect'])
-					],
-					color='info',
-					className='mx-1',
-					inverse=True,
-					outline=True,
-					style={'height': '100%'}
-				),
+				affect.card,
 				width={
 					'size'  : 3,
 					'offset': 0
@@ -545,16 +462,7 @@ dashboard_rows = {
 			# Column 6
 			dbc.Col(
 				[
-					dbc.Card(
-						[
-							dbc.CardBody('Motor body model'),
-							dbc.CardFooter(
-								'➡ Self-activity reports',
-								style={'font-size': 'x-small'}
-							)
-						],
-						color='light'
-					),
+					dashboard_cards['motor_body_model'],
 					html.Div(style=css['line_vertical'])
 				],
 				width={
@@ -580,10 +488,7 @@ dashboard_rows = {
 			# Column 8
 			dbc.Col(
 				[
-					dbc.Card(
-						[dbc.CardBody('Sensory body model')],
-						color='light'
-					),
+					dashboard_cards['sensory_body_model'],
 					html.Div(
 						style=css['arrow_up'],
 						id='tooltip-bottom-sensory'
@@ -601,23 +506,7 @@ dashboard_rows = {
 			# Column 10
 			dbc.Col(
 				[
-					dbc.Card(
-						[
-							dbc.CardHeader(
-								[
-									'Circadian rhythm',
-									dashboard_tools['circadian_button']
-								],
-								className='bg-primary font-weight-bold lead'
-							),
-							dbc.CardBody(dashboard_graphs['circadian'])
-						],
-						color='primary',
-						className='mx-1',
-						inverse=True,
-						outline=True,
-						style={'height': '60%'}
-					),
+					circadian_rhythm.card,
 					html.Div(
 						style=css['arrow_up'],
 						id='tooltip-bottom-circadian',
@@ -644,66 +533,7 @@ dashboard_rows = {
 			# Column 12
 			dbc.Col(
 				[
-					dbc.Card(
-						[
-							dbc.CardHeader('Expression'),
-							dbc.CardBody(
-								dbc.ListGroup(
-									[
-										dbc.ListGroupItem([
-											'Ears',
-											dbc.CardImg(
-												src=con.ASSET_PATH + 'express_ear.png',
-												className='float-right',
-												style={'width': '20px'}
-											),
-										]),
-										dbc.ListGroupItem([
-											'Eyelids',
-											dbc.CardImg(
-												src=con.ASSET_PATH + 'express_eye.png',
-												className='float-right',
-												style={'width': '20px'}
-											),
-										]),
-										dbc.ListGroupItem([
-											'Lights',
-											dbc.CardImg(
-												src=con.ASSET_PATH + 'express_lights.png',
-												className='float-right',
-												style={'width': '20px'}
-											),
-										]),
-										dbc.ListGroupItem([
-											'Tail',
-											dbc.CardImg(
-												src=con.ASSET_PATH + 'express_dog.png',
-												className='float-right',
-												style={'width': '20px'}
-											),
-										]),
-										dbc.ListGroupItem([
-											'Vocalisation',
-											dbc.CardImg(
-												src=con.ASSET_PATH + 'express_speaker.png',
-												className='float-right',
-												style={'width': '20px'}
-											),
-										]),
-									],
-									className='small',
-									flush=True,
-								),
-								className='border-0 m-0 p-0'
-							),
-							dbc.CardFooter(
-								'➡ Self-activity reports',
-								style={'font-size': 'x-small'}
-							)
-						],
-						color='light',
-						className='mx-1',
-					),
+					dashboard_cards['expression'],
 					html.Div(style=css['line_vertical'])
 				],
 				width={
@@ -787,13 +617,7 @@ dashboard_rows = {
 	),
 
 	'Row_btm': dbc.Row(
-		dbc.Col(
-			dbc.Alert(
-				'⬇ To lower functions ⬇',
-				color='dark',
-				className='my-0 py-0 text-center'
-			)
-		),
+		dbc.Col(dashboard_alerts['to_lower']),
 		no_gutters=True
 	)
 }
