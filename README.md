@@ -40,8 +40,10 @@ The dashboard will be available at [localhost:8050](http://localhost:8050).
 The server checks for a running ROS core, either in simulation or on a physical MiRo robot.
 
 In either case, be sure to put MiRo in the '**autonomous mode**', otherwise the dashboard output won't be very interesting.
-The biomimetic controller on the physical MiRo can be enabled through the miRoApp.
-Alternatively, it can be enabled through the terminal:
+When running in simulation, it is advised to introduce some stimuli in the environment, such as the moving ball, otherwise MiRo will quickly go to sleep.
+
+The biomimetic controller on the physical MiRo can be enabled through the MiRoApp.
+Alternatively, it can be enabled through the terminal, both in simulation and for the physical MiRos:
 
 * [Terminal Tab 1] Start the core controller
 
