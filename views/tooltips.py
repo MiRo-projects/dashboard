@@ -1,6 +1,6 @@
 # Plotly Dash modules
+from dash import html
 import dash_bootstrap_components as dbc
-import dash_html_components as html
 
 # As arrows comprise multiple lines spread across multiple rows and columns,
 # and each tooltip requires a unique ID, tooltip messages must be repeated to occur along the entire arrow

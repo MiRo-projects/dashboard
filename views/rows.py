@@ -1,6 +1,6 @@
 # Plotly Dash modules
+from dash import html
 import dash_bootstrap_components as dbc
-import dash_html_components as html
 
 # MiRo dashboard modules
 from views.alerts import dashboard_alerts
@@ -17,7 +17,7 @@ from views.data_displays import (
 dashboard_rows = {
 	'Row_top': dbc.Row(
 		dbc.Col(dashboard_alerts['to_higher']),
-		no_gutters=True
+		##no_gutters=True
 	),
 
 	'Row_1'  : dbc.Row(
@@ -77,7 +77,7 @@ dashboard_rows = {
 				}
 			),
 		],
-		no_gutters=True
+		##no_gutters=True
 	),
 
 	'Row_2'  : dbc.Row(
@@ -134,7 +134,7 @@ dashboard_rows = {
 				}
 			),
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_3'  : dbc.Row(
@@ -209,7 +209,7 @@ dashboard_rows = {
 				}
 			)
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_4'  : dbc.Row(
@@ -353,7 +353,7 @@ dashboard_rows = {
 				}
 			)
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_5'  : dbc.Row(
@@ -427,7 +427,7 @@ dashboard_rows = {
 				}
 			),
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_6'  : dbc.Row(
@@ -543,7 +543,7 @@ dashboard_rows = {
 				style={'overflow': 'hidden'}
 			),
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_7'  : dbc.Row(
@@ -613,11 +613,11 @@ dashboard_rows = {
 				}
 			),
 		],
-		no_gutters=True
+		#no_gutters=True
 	),
 
 	'Row_btm': dbc.Row(
 		dbc.Col(dashboard_alerts['to_lower']),
-		no_gutters=True
+		#no_gutters=True
 	)
 }

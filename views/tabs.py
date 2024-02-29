@@ -1,7 +1,8 @@
 # Plotly Dash modules
+import dash
+from dash import dcc
+from dash import html
 import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
 
 # MiRo dashboard modules
 from views.data_displays import (
@@ -11,69 +12,80 @@ from views.data_displays import (
 	spatial_attention
 )
 
+# Import the Bootstrap theme
+app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+
+# Function to create a card
+def create_card(header, body, link_text, link_href):
+    return dbc.Card(
+        [
+            dbc.CardHeader(header, className='font-weight-bold'),
+            dbc.CardBody(body),
+            dbc.CardFooter(
+                html.A(
+                    dbc.Button(link_text, color='success'),
+                    href=link_href,
+                    target='_blank'
+                )
+            )
+        ],
+        className='shadow-sm'
+    )
+
 dashboard_tabs = {
-	'action_graph'    : action_selection.modal_tab,
-	'action_info'     : dbc.Tab(
-		[
-			dbc.Alert(
-				'Action selection is a fundamental process for all animal life. To successfully navigate the world '
-				'and complete goals such as finding food or evading predators, animals must choose at every moment '
-				'which action to perform from countless possibilities.',
-				color='info',
-				className='mt-2'
-			),
-			dbc.CardDeck([
-				dbc.Card(
-					[
-						dbc.CardHeader('Mammals', className='font-weight-bold'),
-						dbc.CardBody([
-							dcc.Markdown(
-								'A collection of brain structures called the **basal ganglia** are commonly thought to '
-								'be responsible for action selection in mammals. The basal ganglia continually inhibit '
-								'motor centres to prevent unwanted movements, and inputs from many brain areas '
-								'corresponding to \'requests\' to perform various actions co-operate and compete to '
-								'determine which motor regions are disinhibited to allow an action to be selected.'
-							),
-							dcc.Markdown(
-								'The basal ganglia are also responsible for many related functions, such as linking '
-								'several actions together into a learned sequence (e.g. pressing the brakes in a car) '
-								'and forming habitual responses to specific stimuli (e.g. switching on the lights when '
-								'entering a dark room).'
-							)
-						]),
-						dbc.CardFooter(
-							html.A(
-								dbc.Button('More information', color='success'),
-								href='http://www.scholarpedia.org/article/Basal_ganglia',
-								target='_blank'
-							)
-						)
-					],
-					className='shadow-sm'
-				),
-				dbc.Card(
-					[
-						dbc.CardHeader('MiRo', className='font-weight-bold'),
-						dbc.CardBody([
-							dcc.Markdown(
-								'Unlike a real animal which can perform any action its body will physically allow, '
-								'MiRo can only choose from a set of seven possible actions, the parameters of which '
-								'are largely predefined. MiRo is unable to learn new actions, form sequences of '
-								'actions, or associate actions with positive or negative outcomes.'
-							),
-							dcc.Markdown(
-								'MiRo cannot set long-term goals or anticipate future situations and thus selects '
-								'actions purely as a reaction to the current situation. The process by which actions '
-								'are selected is also greatly simplified compared to living mammals.'
-							)
-						])
-					],
-					className='shadow-sm'
-				),
-			])
-		],
-		label='Information'
-	),
+    'action_graph': action_selection.modal_tab,
+    'action_info': dbc.Tab(
+        [
+            dbc.Alert(
+                'Action selection is a fundamental process for all animal life. To successfully navigate the world '
+                'and complete goals such as finding food or evading predators, animals must choose at every moment '
+                'which action to perform from countless possibilities.',
+                color='info',
+                className='mt-2'
+            ),
+            dbc.Row([
+                dbc.Col(create_card(
+                    'Mammals',
+                    [
+                        dcc.Markdown(
+                            'A collection of brain structures called the **basal ganglia** are commonly thought to '
+                            'be responsible for action selection in mammals. The basal ganglia continually inhibit '
+                            'motor centres to prevent unwanted movements, and inputs from many brain areas '
+                            'corresponding to \'requests\' to perform various actions co-operate and compete to '
+                            'determine which motor regions are disinhibited to allow an action to be selected.'
+                        ),
+                        dcc.Markdown(
+                            'The basal ganglia are also responsible for many related functions, such as linking '
+                            'several actions together into a learned sequence (e.g. pressing the brakes in a car) '
+                            'and forming habitual responses to specific stimuli (e.g. switching on the lights when '
+                            'entering a dark room).'
+                        )
+                    ],
+                    'More information',
+                    'http://www.scholarpedia.org/article/Basal_ganglia'
+                ), width=6),
+                dbc.Col(create_card(
+                    'MiRo',
+                    [
+                        dcc.Markdown(
+                            'Unlike a real animal which can perform any action its body will physically allow, '
+                            'MiRo can only choose from a set of seven possible actions, the parameters of which '
+                            'are largely predefined. MiRo is unable to learn new actions, form sequences of '
+                            'actions, or associate actions with positive or negative outcomes.'
+                        ),
+                        dcc.Markdown(
+                            'MiRo cannot set long-term goals or anticipate future situations and thus selects '
+                            'actions purely as a reaction to the current situation. The process by which actions '
+                            'are selected is also greatly simplified compared to living mammals.'
+                        )
+                    ],
+                    'More information',
+                    '#'
+                ), width=6),
+            ])
+        ],
+        label='Information'
+    ),
 	'affect_graph'    : affect.modal_tab,
 	'affect_info'     : dbc.Tab(
 		[
@@ -85,7 +97,7 @@ dashboard_tabs = {
 				color='info',
 				className='mt-2'
 			),
-			dbc.CardDeck([
+			dbc.Row([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
@@ -145,7 +157,7 @@ dashboard_tabs = {
 				color='info',
 				className='mt-2'
 			),
-			dbc.CardDeck([
+			dbc.Row([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
@@ -194,7 +206,7 @@ dashboard_tabs = {
 				color='info',
 				className='mt-2'
 			),
-			dbc.CardDeck([
+			dbc.Row([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
@@ -257,7 +269,7 @@ dashboard_tabs = {
 				color='info',
 				className='mt-2'
 			),
-			dbc.CardDeck([
+			dbc.Row([ # dbc.CardDeck([
 				dbc.Card(
 					[
 						dbc.CardHeader('Mammals', className='font-weight-bold'),
