@@ -16,10 +16,16 @@ import models.callback_modal
 # TODO: Move from Scatter() to ScatterGL() (see: https://plot.ly/python/webgl-vs-svg/)
 
 if __name__ == '__main__':
+	# Issue the following command to kill the server 
+	# sudo fuser 8050/tcp -k
+	#
 	# Enable to suppress warnings TEMPORARILY
 	# app.config['suppress_callback_exceptions'] = True
 
 	# "debug=False" because hot reloading causes "IOError: [Errno 11] Resource temporarily unavailable" errors
 	# "host='0.0.0.0'" allows connections from non-localhost addresses
 	# I *think* "threaded=True" gives a performance boost to multiple callbacks
+
+	# If running inside WSL, replace 0.0.0.0 with the IP address of your WSL instance
+
 	app.run_server(debug=False, host='0.0.0.0', threaded=True)

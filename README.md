@@ -12,11 +12,64 @@ The MiRo dashboard allows users to observe the activity of these systems during 
 
 ## Installation
 
-The MiRo dashboard assumes you already have the latest [MiRo MDK](http://labs.consequentialrobotics.com/miro-e/software/) installed, either on your computer to run in simulation or on a physical MiRo robot.
+This version of the dashboard was adapted for use with Python3 and assumes you are running [MDK v230105](http://labs.consequentialrobotics.com/miro-e/software/) (or later).
 
 You will also need to install `dash`, `dash-daq`, and `dash-bootstrap-components` for the web frontend, and `opencv-python-headless` for image processing. It's assumed you already have MDK prerequisites including `rospy` installed.
 
-Clone the dashboard folder into `mdk/share/python/miro2/` and run `python app.py` to start the dashboard. The dashboard will be available at [localhost:8050](http://localhost:8050).
+You can paste the following code snippet into the terminal for semi-automate installation process.
+
+```bash
+pip3 install dash dash-daq dash-bootstrap-components opencv-python-headless
+cd ~/mdk/share/python/miro2/
+git clone https://github.com/MiRo-projects/dashboard
+```
+
+## Usage
+
+The server can be started by running `python3 index.py` inside `mdk/share/python/miro2/dashboard`.
+
+``` bash
+cd ~/mdk/share/python/miro2/dashboard
+python3 index.py
+```
+
+The dashboard will be available at [localhost:8050](http://localhost:8050).
+
+> **_NOTE:_**  If running inside WSL, this has to be replaced with the IP address of your WSL instance.
+
+The server checks for a running ROS core, either in simulation or on a physical MiRo robot.
+
+In either case, be sure to put MiRo in the '**autonomous mode**', otherwise the dashboard output won't be very interesting.
+The biomimetic controller on the physical MiRo can be enabled through the miRoApp.
+Alternatively, it can be enabled through the terminal:
+
+* [Terminal Tab 1] Start the core controller
+
+    ```bash
+    cd ~/mdk/share/python/miro2/core
+    python3 client_demo.py
+    ```
+
+* [Terminal Tab 2] Connect the left camera
+
+    ```bash
+    cd ~/mdk/share/python/miro2/core
+    python3 client_demo.py - caml
+    ```
+
+* [Terminal Tab 3] Connect the right camera
+
+    ```bash
+    cd ~/mdk/share/python/miro2/core
+    python3 client_demo.py - camr
+    ```
+
+* [Terminal Tab 4] Connect the microphones
+
+    ```bash
+    cd ~/mdk/share/python/miro2/core
+    python3 client_demo.py - mics
+    ```
 
 ## Links
 
